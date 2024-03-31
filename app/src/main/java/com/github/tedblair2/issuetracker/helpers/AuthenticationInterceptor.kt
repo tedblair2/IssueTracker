@@ -17,7 +17,7 @@ class AuthenticationInterceptor @Inject constructor(
         chain: HttpInterceptorChain
     ): HttpResponse {
         val userData=userService.getUser().first()
-        val token="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"
+        val token=userData.accessToken
         return chain.proceed(request.newBuilder().addHeader("Authorization","Bearer $token").build())
     }
 }
