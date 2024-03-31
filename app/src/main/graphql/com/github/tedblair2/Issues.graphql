@@ -1,0 +1,23 @@
+query Issues($name:String!,$page:Int!,$endcursor:String) {
+    user(login: $name) {
+        issues(first: $page,after: $endcursor,orderBy:{field:CREATED_AT, direction:DESC}) {
+            nodes {
+                id
+                title
+                number
+                createdAt
+                author {
+                    login
+                }
+                comments {
+                    totalCount
+                }
+                state
+            }
+            pageInfo {
+                hasNextPage
+                endCursor
+            }
+        }
+    }
+}

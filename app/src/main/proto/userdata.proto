@@ -1,0 +1,9 @@
+syntax="proto3";
+
+option java_package="com.github.tedblair2.issuetracker";
+option java_multiple_files = true;
+
+message UserItem {
+  string username = 1;
+  string accessToken = 2;
+}

@@ -1,0 +1,22 @@
+query Comments($id:ID!,$page:Int!,$endcursor:String){
+    node(id: $id){
+        ... on Issue{
+            comments(first:$page,after: $endcursor){
+                totalCount
+                nodes{
+                    id
+                    body
+                    createdAt
+                    author{
+                        login
+                        avatarUrl
+                    }
+                }
+                pageInfo{
+                    hasNextPage
+                    endCursor
+                }
+            }
+        }
+    }
+}

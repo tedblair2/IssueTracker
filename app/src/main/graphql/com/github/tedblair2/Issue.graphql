@@ -1,0 +1,18 @@
+query Issue($id:ID!){
+    node(id:$id){
+        ... on Issue{
+            id
+            title
+            body
+            number
+            createdAt
+            state
+            author {
+                login
+            }
+            comments{
+                totalCount
+            }
+        }
+    }
+}

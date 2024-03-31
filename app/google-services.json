@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "698583062451",
+    "firebase_url": "https://fir-c5d09.firebaseio.com",
+    "project_id": "fir-c5d09",
+    "storage_bucket": "fir-c5d09.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:698583062451:android:b7cf3f51fd1a3e5a",
+        "android_client_info": {
+          "package_name": "com.example.emobilis.firebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "698583062451-ubmkfakqa87snlkgu1imsp6johq5p8ko.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtHvvN1elVf6LmkXI8Myy_WIiHi1gROXY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "698583062451-ubmkfakqa87snlkgu1imsp6johq5p8ko.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:698583062451:android:952fadc6f30264e4e61dc6",
+        "android_client_info": {
+          "package_name": "com.github.tedblair2.issuetracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "698583062451-ubmkfakqa87snlkgu1imsp6johq5p8ko.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtHvvN1elVf6LmkXI8Myy_WIiHi1gROXY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "698583062451-ubmkfakqa87snlkgu1imsp6johq5p8ko.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
