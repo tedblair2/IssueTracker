@@ -13,5 +13,6 @@ data class DetailedIssue(
     val state:String="",
     val author:String="",
     val commentCount:Int=0,
-    val issueNumber:Int=0
+    val issueNumber:Int=0,
+    val avatar:String=""
 )

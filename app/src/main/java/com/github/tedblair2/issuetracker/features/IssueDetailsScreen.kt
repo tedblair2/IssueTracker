@@ -13,10 +13,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,8 +36,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,6 +64,7 @@ import com.github.tedblair2.issuetracker.model.ScreenRoutes
 import com.github.tedblair2.issuetracker.ui.theme.IssueTrackerTheme
 import com.github.tedblair2.issuetracker.viewmodel.DetailViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.datetime.DateTimePeriod
 
 
 @Composable
@@ -66,12 +78,18 @@ fun IssueDetailScreen(
     LaunchedEffect(key1 = true) {
         viewModel.onEvent(IssueDetailEvent.GetDetailedIssue(id))
     }
-    IssueDetailsContent(issueDetailScreenState = issueDetails)
+    IssueDetailsContent(
+        issueDetailScreenState = issueDetails,
+        onNavigateUp = onNavigateUp)
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun IssueDetailsContent(issueDetailScreenState: IssueDetailScreenState) {
+fun IssueDetailsContent(
+    issueDetailScreenState: IssueDetailScreenState,
+    onNavigateUp: () -> Unit={}
+    ) {
     val context= LocalContext.current
     val flow= MutableStateFlow(issueDetailScreenState.comments)
     val comments=flow.collectAsLazyPagingItems()
@@ -95,73 +113,126 @@ fun IssueDetailsContent(issueDetailScreenState: IssueDetailScreenState) {
             Toast.makeText(context, issueDetailScreenState.errorMsg, Toast.LENGTH_SHORT).show()
         }
     }
-    LazyColumn(modifier = Modifier
-        .fillMaxSize()) {
-        item {
-            Box(modifier = Modifier
-                .fillMaxWidth()) {
-                if (issueDetailScreenState.isLoading){
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                }else{
-                    Column(modifier = Modifier
-                        .padding(
-                            horizontal = 15.dp, vertical = 6.dp
-                        )
-                        .fillMaxWidth()
-                        .align(Alignment.TopCenter),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(text = issueDetailScreenState.issue.title,
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold)
+    Scaffold(modifier = Modifier
+        .fillMaxSize(),
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(text = issueDetailScreenState.issue.title,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold)
+                },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateUp) {
+                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack ,
+                            contentDescription = "back")
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                ))
+        }
+    ) {paddingValues->
 
-                        Row(modifier = Modifier
-                            .padding(vertical = 7.dp)
+        val dateTxt= buildAnnotatedString {
+            withStyle(
+                style = SpanStyle(
+                    fontSize = 14.sp
+                )
+            ){
+                append("${issueDetailScreenState.issue.createdAt.hour}:${issueDetailScreenState.issue.createdAt.minute}")
+            }
+            append(" \u2022 ")
+            withStyle(
+                style = SpanStyle(
+                    fontSize = 14.sp
+                )
+            ){
+                append("${issueDetailScreenState.issue.createdAt.dayOfMonth} ${issueDetailScreenState.issue.createdAt.month} ${issueDetailScreenState.issue.createdAt.year}")
+            }
+        }
+
+        val context= LocalContext.current
+        val request=ImageRequest.Builder(context)
+            .data(issueDetailScreenState.issue.avatar)
+            .error(R.drawable.baseline_person_24)
+            .placeholder(R.drawable.baseline_person_24)
+            .build()
+
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)){
+            if (issueDetailScreenState.isLoading){
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }else{
+                LazyColumn(modifier = Modifier
+                    .fillMaxSize()) {
+                    item {
+                        Column(modifier = Modifier
+                            .padding(horizontal = 15.dp)
                             .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(text = "Opened by ${issueDetailScreenState.issue.author} on ${issueDetailScreenState.issue.createdAt.dayOfMonth} ${issueDetailScreenState.issue.createdAt.month} ${issueDetailScreenState.issue.createdAt.year}",
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Light,
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally) {
+
+                            Row(modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 7.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween) {
+
+                                Row (modifier = Modifier,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)){
+                                    Box(modifier = Modifier
+                                        .size(35.dp)
+                                        .clip(CircleShape),
+                                        contentAlignment = Alignment.Center){
+                                        AsyncImage(
+                                            model = request,
+                                            contentDescription = "author",
+                                            modifier = Modifier.fillMaxSize())
+                                    }
+                                    Text(text = issueDetailScreenState.issue.author,
+                                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f))
+                                }
+                                Box(modifier = Modifier
+                                    .clip(RoundedCornerShape(20.dp))
+                                    .background(color = color),
+                                    contentAlignment = Alignment.Center){
+                                    Text(text = issueDetailScreenState.issue.state,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier
+                                            .padding(horizontal = 10.dp),
+                                        textAlign = TextAlign.Center,
+                                        color = Color.White)
+                                }
+                            }
+
+                            Text(text = issueDetailScreenState.issue.description,
+                                fontSize = 18.sp,
                                 modifier = Modifier
-                                    .weight(4f)
-                                    .padding(end = 5.dp))
-                            Text(text = issueDetailScreenState.issue.state,
+                                    .padding(vertical = 10.dp)
+                                    .fillMaxWidth())
+                            
+                            Text(text = dateTxt,
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
                                 modifier = Modifier
-                                    .clip(RoundedCornerShape(15.dp))
-                                    .background(color = color)
-                                    .weight(1f)
-                                    .padding(start = 3.dp, end = 3.dp),
-                                textAlign = TextAlign.Center,
-                                fontSize = 15.sp,
-                                color = Color.White)
+                                    .fillMaxWidth()
+                                    .padding(bottom = 7.dp))
                         }
-
+                    }
+                    item {
                         HorizontalDivider()
-
-                        Text(text = issueDetailScreenState.issue.description,
-                            fontSize = 20.sp,
-                            modifier = Modifier
-                                .padding(vertical = 10.dp)
-                                .fillMaxWidth())
-
+                    }
+                    items(count = comments.itemCount){
+                        val comment=comments[it] ?: Comment()
+                        SingleComment(comment = comment)
                         HorizontalDivider()
-
-                        Text(text = "${comments.itemCount} Comments", fontSize = 18.sp,
-                            modifier = Modifier
-                                .padding(vertical = 6.dp)
-                                .fillMaxWidth())
                     }
                 }
             }
-        }
-        item {
-            HorizontalDivider()
-        }
-        items(count = comments.itemCount){
-            val comment=comments[it] ?: Comment()
-            SingleComment(comment = comment)
-            HorizontalDivider()
         }
     }
 }
@@ -171,6 +242,17 @@ fun SingleComment(
     modifier: Modifier=Modifier,
     comment: Comment
 ) {
+    val title= buildAnnotatedString {
+        append(comment.author)
+        withStyle(
+            style = SpanStyle(
+                fontSize = 17.sp
+            )
+        ){
+            append(" \u2022 ")
+        }
+        append(getTimePeriod(comment.timePeriod))
+    }
     val context= LocalContext.current
     val request=ImageRequest.Builder(context)
         .data(comment.avatar)
@@ -178,7 +260,7 @@ fun SingleComment(
         .placeholder(R.drawable.baseline_person_24)
         .build()
     Row(modifier = modifier
-        .padding(vertical = 6.dp, horizontal = 15.dp)
+        .padding(vertical = 6.dp , horizontal = 15.dp)
         .fillMaxWidth()) {
         Box(modifier = Modifier
             .size(30.dp)
@@ -193,9 +275,9 @@ fun SingleComment(
             .weight(1f)
             .padding(start = 8.dp),
             verticalArrangement = Arrangement.spacedBy(5.dp)) {
-            Text(text = "${comment.author} commented on ${comment.createdAt.dayOfMonth} ${comment.createdAt.month} ${comment.createdAt.year}",
+            Text(text = title,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Light)
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f))
             Text(text = comment.body)
         }
     }
@@ -221,6 +303,22 @@ fun NavGraphBuilder.issueDetailScreen(
 
 fun NavHostController.navigateToDetailScreen(id: String){
     navigate(ScreenRoutes.IssueDetailScreen.passParam(id))
+}
+
+fun getTimePeriod(period: DateTimePeriod):String{
+    return if (period.years>1){
+        "${period.years}yr ago"
+    }else if (period.months>1){
+        "${period.months}mon ago"
+    }else if (period.days>7){
+        "${period.days.div(7)}wk ago"
+    }else if (period.days>1){
+        "${period.days}d ago"
+    }else if (period.hours>1){
+        "${period.hours}h ago"
+    }else{
+        "${period.minutes}min ago"
+    }
 }
 
 @PreviewLightDark

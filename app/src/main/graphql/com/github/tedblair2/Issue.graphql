@@ -9,6 +9,7 @@ query Issue($id:ID!){
             state
             author {
                 login
+                avatarUrl
             }
             comments{
                 totalCount

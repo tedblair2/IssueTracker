@@ -1,6 +1,7 @@
 package com.github.tedblair2.issuetracker.features
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -51,7 +52,9 @@ fun WelcomeScreen(
 
 @Composable
 fun WelcomeScreenContent() {
-    Column(modifier = Modifier.fillMaxSize(),
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .background(color = MaterialTheme.colorScheme.background),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally) {
         Image(painter = painterResource(id = R.drawable.bug_report_fill0_wght400_grad0_opsz24),

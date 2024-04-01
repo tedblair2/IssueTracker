@@ -1,15 +1,15 @@
 package com.github.tedblair2.issuetracker.model
 
 import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.DateTimePeriod
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.periodUntil
 
 data class Comment(
-    val id:String="",
-    val body:String="",
-    val createdAt:LocalDateTime= Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
-    val author:String="",
+    val id:String="" ,
+    val body:String="" ,
+    val timePeriod:DateTimePeriod=Clock.System.now().periodUntil(Clock.System.now(), TimeZone.UTC) ,
+    val author:String="" ,
     val avatar:String=""
 )
 

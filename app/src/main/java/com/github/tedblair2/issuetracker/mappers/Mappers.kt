@@ -8,8 +8,10 @@ import com.github.tedblair2.issuetracker.model.CommentData
 import com.github.tedblair2.issuetracker.model.DetailedIssue
 import com.github.tedblair2.issuetracker.model.IssuePage
 import com.github.tedblair2.issuetracker.model.SimpleIssue
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.periodUntil
 import kotlinx.datetime.toLocalDateTime
 
 fun IssuesQuery.Node.toSimpleIssue():SimpleIssue{
@@ -51,17 +53,20 @@ fun IssueQuery.OnIssue.toDetailedIssue():DetailedIssue{
         author = author?.login ?: "",
         state = state.rawValue,
         issueNumber = number,
-        commentCount = comments.totalCount
+        commentCount = comments.totalCount,
+        avatar = author?.avatarUrl.toString()
     )
 }
 
 fun CommentsQuery.Node1.toComment():Comment{
+    val createdAt=Instant.parse(createdAt.toString())
+    val period=createdAt.periodUntil(Clock.System.now(), TimeZone.currentSystemDefault())
     return Comment(
         id = id,
         body = body,
         author = author?.login ?: "",
         avatar = author?.avatarUrl.toString(),
-        createdAt = Instant.parse(createdAt.toString()).toLocalDateTime(TimeZone.currentSystemDefault())
+        timePeriod = period
     )
 }
 
