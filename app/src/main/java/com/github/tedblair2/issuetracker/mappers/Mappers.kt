@@ -15,10 +15,11 @@ import kotlinx.datetime.toLocalDateTime
 fun IssuesQuery.Node.toSimpleIssue():SimpleIssue{
     val timeTxt=createdAt as String
     val instanceBefore=Instant.parse(timeTxt)
+    val mainTitle="$title #$number"
 
     return SimpleIssue(
         id = id,
-        title = title,
+        title = mainTitle,
         createdAt = instanceBefore.toLocalDateTime(TimeZone.currentSystemDefault()),
         author = author?.login ?: "",
         commentCount = comments.totalCount,
@@ -41,9 +42,10 @@ fun IssuesQuery.Issues.toIssuePage():IssuePage{
 
 fun IssueQuery.OnIssue.toDetailedIssue():DetailedIssue{
     val desc= body.ifEmpty { "No Description" }
+    val mainTitle="$title #$number"
     return DetailedIssue(
         id = id,
-        title = title,
+        title = mainTitle,
         description = desc,
         createdAt = Instant.parse(createdAt as String).toLocalDateTime(TimeZone.currentSystemDefault()),
         author = author?.login ?: "",

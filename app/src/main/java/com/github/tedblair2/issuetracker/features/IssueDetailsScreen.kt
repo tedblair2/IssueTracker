@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -75,15 +76,17 @@ fun IssueDetailsContent(issueDetailScreenState: IssueDetailScreenState) {
     val flow= MutableStateFlow(issueDetailScreenState.comments)
     val comments=flow.collectAsLazyPagingItems()
 
+    val openColor= MaterialTheme.colorScheme.primary
+    val closedColor= MaterialTheme.colorScheme.error
     var color by remember {
-        mutableStateOf(Color.Blue)
+        mutableStateOf(openColor)
     }
 
     LaunchedEffect(key1 = issueDetailScreenState.issue.state) {
         color = if (issueDetailScreenState.issue.state.lowercase()=="open"){
-            Color.Blue
+            openColor
         }else{
-            Color.Red
+            closedColor
         }
     }
 
@@ -130,7 +133,7 @@ fun IssueDetailsContent(issueDetailScreenState: IssueDetailScreenState) {
                                     .weight(1f)
                                     .padding(start = 3.dp, end = 3.dp),
                                 textAlign = TextAlign.Center,
-                                fontSize = 16.sp,
+                                fontSize = 15.sp,
                                 color = Color.White)
                         }
 
