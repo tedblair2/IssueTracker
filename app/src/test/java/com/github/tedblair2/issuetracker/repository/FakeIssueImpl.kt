@@ -5,13 +5,19 @@ import com.github.tedblair2.issuetracker.model.DetailedIssue
 import com.github.tedblair2.issuetracker.model.IssuePage
 import com.github.tedblair2.issuetracker.model.Response
 import com.github.tedblair2.issuetracker.model.SimpleIssue
+import com.github.tedblair2.issuetracker.model.State
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
 class FakeIssueImpl:IssuesService {
 
-    override suspend fun getIssues(username: String , endCursor: String?): Response<IssuePage> {
+    override suspend fun getIssues(
+        username: String ,
+        endCursor: String? ,
+        state: List<State> ,
+        labels: List<String>
+    ): Response<IssuePage> {
         val issues= listOf(
             SimpleIssue(
                 id = "id",
