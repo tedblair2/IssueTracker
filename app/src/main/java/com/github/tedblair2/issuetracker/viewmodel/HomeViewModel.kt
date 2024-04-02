@@ -2,14 +2,16 @@ package com.github.tedblair2.issuetracker.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.github.tedblair2.issuetracker.events.HomeScreenEvent
 import com.github.tedblair2.issuetracker.model.HomeScreenState
+import com.github.tedblair2.issuetracker.model.Response
 import com.github.tedblair2.issuetracker.repository.IssueRepository
+import com.github.tedblair2.issuetracker.repository.SignInService
 import com.github.tedblair2.issuetracker.repository.UserService
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -19,7 +21,9 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val userService: UserService,
-    private val issueRepository: IssueRepository
+    private val issueRepository: IssueRepository,
+    private val signInService: SignInService,
+    private val ioDispatcher: CoroutineDispatcher
 ):ViewModel() {
 
     private val _homeScreenState= MutableStateFlow(HomeScreenState())
@@ -38,7 +42,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun getCurrentUser(){
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             _homeScreenState.update { it.copy(isLoading = true) }
             userService.getUser()
                 .collect{user->
@@ -63,13 +67,18 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun signOut(){
-        Firebase.auth.signOut()
-        _homeScreenState.update {
-            it.copy(
-                isLoggedIn = false,
-                user = null,
-                issues = emptyList()
-            )
+        viewModelScope.launch(ioDispatcher) {
+            signInService.signOut().collect{response->
+                if (response is Response.Success){
+                    _homeScreenState.update {
+                        it.copy(
+                            isLoggedIn = false,
+                            user = null,
+                            issuesData = PagingData.empty()
+                        )
+                    }
+                }
+            }
         }
     }
 }

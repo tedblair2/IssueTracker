@@ -25,6 +25,7 @@
     play-services-version="1.8.0"
     truth-version="1.4.0"
     test-junit-jupiter = "5.9.2"
+    coroutine-test-version="1.8.1-Beta"
 
 [libraries]
     androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -62,11 +63,12 @@
     junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "test-junit-jupiter" }
     jupiter = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "test-junit-jupiter" }
     jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "test-junit-jupiter" }
+    coroutines-test={module="org.jetbrains.kotlinx:kotlinx-coroutines-test",version.ref="coroutine-test-version"}
 
 [bundles]
     paging=["paging-lib","paging-compose"]
     datastore=["datastore","protobuf"]
-    test=["junit","truth","jupiter-params","jupiter"]
+    test=["junit","truth","jupiter-params","jupiter","coroutines-test"]
 
 [plugins]
     androidApplication = { id = "com.android.application", version.ref = "agp" }

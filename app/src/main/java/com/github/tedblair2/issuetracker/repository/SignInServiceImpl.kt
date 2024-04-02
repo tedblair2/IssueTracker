@@ -22,7 +22,7 @@ class SignInServiceImpl @Inject constructor(
     private val auth=Firebase.auth
     private val emailValidator=EmailValidator()
 
-    override fun signIn(email: String, activity: Activity): Flow<Response<Unit>> = flow{
+    override fun signIn(email: String, activity: Activity?): Flow<Response<Unit>> = flow{
         val provider= OAuthProvider.newBuilder("github.com")
         provider.addCustomParameter("login",email)
         provider.scopes= listOf("repo")
@@ -47,7 +47,7 @@ class SignInServiceImpl @Inject constructor(
             }
         }else {
             try {
-                val authResult=auth.startActivityForSignInWithProvider(activity,provider.build()).await()
+                val authResult=auth.startActivityForSignInWithProvider(activity!!,provider.build()).await()
                 val credential=authResult.credential as OAuthCredential
                 val accessToken=credential.accessToken
                 val profile=authResult.additionalUserInfo?.profile

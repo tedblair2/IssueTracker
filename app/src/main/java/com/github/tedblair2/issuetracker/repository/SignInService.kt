@@ -5,7 +5,7 @@ import com.github.tedblair2.issuetracker.model.Response
 import kotlinx.coroutines.flow.Flow
 
 interface SignInService {
-    fun signIn(email:String,activity: Activity):Flow<Response<Unit>>
+    fun signIn(email:String,activity: Activity?=null):Flow<Response<Unit>>
     fun checkSignIn():Flow<Response<Unit>>
     fun signOut():Flow<Response<Unit>>
 }

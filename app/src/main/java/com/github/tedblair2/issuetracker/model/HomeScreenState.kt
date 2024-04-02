@@ -5,7 +5,6 @@ import androidx.paging.PagingData
 data class HomeScreenState(
     val isLoggedIn:Boolean=true,
     val user: User?=null,
-    val issues:List<SimpleIssue> = emptyList(),
     val issuesData: PagingData<SimpleIssue> = PagingData.empty(),
     val isLoading:Boolean=true,
     val isError:Boolean=false,

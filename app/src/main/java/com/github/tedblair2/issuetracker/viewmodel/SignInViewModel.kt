@@ -9,13 +9,15 @@ import com.github.tedblair2.issuetracker.model.Response
 import com.github.tedblair2.issuetracker.model.SignInScreenState
 import com.github.tedblair2.issuetracker.repository.SignInService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SignInViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val signInService: SignInService
+    private val signInService: SignInService,
+    private val ioDispatcher: CoroutineDispatcher
 ):ViewModel() {
 
     val signInScreenState=savedStateHandle.getStateFlow(
@@ -39,8 +41,8 @@ class SignInViewModel @Inject constructor(
         }
     }
 
-    private fun signIn(activity: Activity){
-        viewModelScope.launch {
+    private fun signIn(activity: Activity?){
+        viewModelScope.launch(ioDispatcher) {
             val email=signInScreenState.value.email
             signInService.signIn(email, activity).collect{response->
                 when(response){
@@ -60,7 +62,7 @@ class SignInViewModel @Inject constructor(
                             savedStateHandle[SIGN_IN_STATE_KEY]=signInScreenState.value.copy(
                                 isWrongEmailFormat = true,
                                 loginSuccess = false,
-                                errorMessage = "Enter correct error message"
+                                errorMessage = "Incorrect email format"
                             )
                         }
                     }
