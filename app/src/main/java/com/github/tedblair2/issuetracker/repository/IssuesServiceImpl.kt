@@ -13,17 +13,34 @@ import com.github.tedblair2.issuetracker.model.CommentData
 import com.github.tedblair2.issuetracker.model.DetailedIssue
 import com.github.tedblair2.issuetracker.model.IssuePage
 import com.github.tedblair2.issuetracker.model.Response
+import com.github.tedblair2.issuetracker.model.State
+import com.github.tedblair2.type.IssueState
 import javax.inject.Inject
 
 class IssuesServiceImpl @Inject constructor(
     private val apolloClient: ApolloClient
 ): IssuesService {
 
-    override suspend fun getIssues(username: String,endCursor:String?): Response<IssuePage>{
+    override suspend fun getIssues(username: String,endCursor:String?,state:List<State>,labels:List<String>): Response<IssuePage>{
         val end=Optional.presentIfNotNull(endCursor)
+        val filterState=if (state.isEmpty()){
+            Optional.absent()
+        }else if (state.size==1 && state[0]==State.OPEN){
+            Optional.present(listOf(IssueState.OPEN))
+        }else if (state.size==1 && state[0]==State.CLOSED){
+            Optional.present(listOf(IssueState.CLOSED))
+        }else{
+            Optional.present(listOf(IssueState.OPEN,IssueState.CLOSED))
+        }
+        val filterLabels=if (labels.isEmpty()){
+            Optional.absent()
+        }else{
+            Optional.presentIfNotNull(labels)
+        }
+
         return try {
             val data=apolloClient
-                .query(IssuesQuery(username,10,end))
+                .query(IssuesQuery(username,10,end,filterState,filterLabels))
                 .execute()
                 .data
                 ?.user

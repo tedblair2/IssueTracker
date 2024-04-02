@@ -6,9 +6,8 @@ import androidx.datastore.dataStore
 import com.github.tedblair2.issuetracker.UserItem
 import com.github.tedblair2.issuetracker.helpers.UserSerializer
 import com.github.tedblair2.issuetracker.model.User
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -34,10 +33,24 @@ class UserServiceImpl @Inject constructor(
     }
 
     override fun getUser():Flow<User> {
+        val currentUser=Firebase.auth.currentUser
+        var photoUrl=""
+        var displayName=""
+        var email=""
+        currentUser?.let {
+            for (profile in it.providerData){
+                photoUrl=profile.photoUrl.toString()
+                displayName=profile.displayName.toString()
+                email=profile.email.toString()
+            }
+        }
         return userPref.data
             .map {
                 User(username = it.username,
-                    accessToken = it.accessToken)
+                    accessToken = it.accessToken,
+                    avatar = photoUrl,
+                    displayName = displayName,
+                    email = email)
             }
     }
 }

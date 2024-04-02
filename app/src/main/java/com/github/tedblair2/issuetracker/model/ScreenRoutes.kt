@@ -10,4 +10,5 @@ sealed class ScreenRoutes(val route:String){
             return "details/$id"
         }
     }
+    data object ProfileScreen:ScreenRoutes("profile")
 }

@@ -1,6 +1,6 @@
-query Issues($name:String!,$page:Int!,$endcursor:String) {
+query Issues($name:String!,$page:Int!,$endcursor:String,$state:[IssueState!],$labels:[String!]) {
     user(login: $name) {
-        issues(first: $page,after: $endcursor,orderBy:{field:CREATED_AT, direction:DESC}) {
+        issues(first: $page,after: $endcursor,orderBy:{field:CREATED_AT, direction:DESC},filterBy: {states: $state,labels: $labels}) {
             nodes {
                 id
                 title
@@ -8,6 +8,9 @@ query Issues($name:String!,$page:Int!,$endcursor:String) {
                 createdAt
                 author {
                     login
+                }
+                repository {
+                    name
                 }
                 comments {
                     totalCount

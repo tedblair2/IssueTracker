@@ -9,9 +9,11 @@ import com.google.firebase.auth.OAuthCredential
 import com.google.firebase.auth.OAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class SignInServiceImpl @Inject constructor(
@@ -39,10 +41,14 @@ class SignInServiceImpl @Inject constructor(
                 accessToken?.let {
                     userService.addUserData(name, accessToken)
                 }
-                Toast.makeText(context, "Successfully logged In", Toast.LENGTH_SHORT).show()
+                withContext(Dispatchers.Main){
+                    Toast.makeText(context, "Successful sign Up", Toast.LENGTH_SHORT).show()
+                }
                 emit(Response.Success(Unit))
             }catch (e:Exception){
-                Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+                withContext(Dispatchers.Main){
+                    Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+                }
                 emit(Response.Error(""))
             }
         }else {
@@ -55,10 +61,14 @@ class SignInServiceImpl @Inject constructor(
                 accessToken?.let {
                     userService.addUserData(name, accessToken)
                 }
-                Toast.makeText(context, "Successful sign Up", Toast.LENGTH_SHORT).show()
+                withContext(Dispatchers.Main){
+                    Toast.makeText(context, "Successful sign Up", Toast.LENGTH_SHORT).show()
+                }
                 emit(Response.Success(Unit))
             }catch (e:Exception){
-                Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+                withContext(Dispatchers.Main){
+                    Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+                }
                 emit(Response.Error(""))
             }
         }

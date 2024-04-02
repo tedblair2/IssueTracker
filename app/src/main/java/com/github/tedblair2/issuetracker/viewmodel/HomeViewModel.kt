@@ -50,18 +50,20 @@ class HomeViewModel @Inject constructor(
                         state.copy(user = user)
                     }
                     val name="RaphaelNdonga"
-                    getIssueList(user.username)
+                    getIssueList(name)
                 }
         }
     }
 
-    private suspend fun getIssueList(username: String){
-        issueRepository.getIssues(username).cachedIn(viewModelScope).collect{pagingData->
-            _homeScreenState.update {
-                it.copy(
-                    issuesData = pagingData,
-                    isLoading = false
-                )
+    private fun getIssueList(username: String){
+        viewModelScope.launch(ioDispatcher) {
+            issueRepository.getIssues(username).cachedIn(viewModelScope).collect{pagingData->
+                _homeScreenState.update {
+                    it.copy(
+                        issuesData = pagingData,
+                        isLoading = false
+                    )
+                }
             }
         }
     }

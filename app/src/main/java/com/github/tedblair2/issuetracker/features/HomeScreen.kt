@@ -12,14 +12,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -53,6 +51,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.github.tedblair2.issuetracker.R
 import com.github.tedblair2.issuetracker.events.HomeScreenEvent
 import com.github.tedblair2.issuetracker.model.HomeScreenState
@@ -65,7 +65,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 @Composable
 fun HomeScreen(
     navigateToSignIn:()->Unit={},
-    navigateToIssueDetail: (id: String) -> Unit
+    navigateToIssueDetail: (id: String) -> Unit,
+    navigateToProfile: () -> Unit
 ) {
     val viewModel= hiltViewModel<HomeViewModel>()
     val homeScreenState by viewModel.homeScreenState.collectAsStateWithLifecycle()
@@ -79,7 +80,8 @@ fun HomeScreen(
     HomeScreenContent(
         homeScreenState = homeScreenState,
         onEvent = viewModel::onEvent,
-        navigateToIssueDetail = navigateToIssueDetail)
+        navigateToIssueDetail = navigateToIssueDetail,
+        navigateToProfile = navigateToProfile)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -87,12 +89,18 @@ fun HomeScreen(
 internal fun HomeScreenContent(
     homeScreenState: HomeScreenState,
     onEvent:(HomeScreenEvent)->Unit,
-    navigateToIssueDetail:(id:String)->Unit
+    navigateToIssueDetail:(id:String)->Unit,
+    navigateToProfile:()->Unit
 ){
     val flow= MutableStateFlow(homeScreenState.issuesData)
     val issues=flow.collectAsLazyPagingItems()
     val loadState=issues.loadState.refresh
     val context= LocalContext.current
+    val request=ImageRequest.Builder(context)
+        .data(homeScreenState.user?.avatar)
+        .placeholder(R.drawable.baseline_person_24)
+        .error(R.drawable.baseline_person_24)
+        .build()
 
     LaunchedEffect(key1 = loadState) {
         if (loadState is LoadState.Error){
@@ -116,10 +124,14 @@ internal fun HomeScreenContent(
                     containerColor = MaterialTheme.colorScheme.background
                 ),
                 actions = {
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(imageVector = Icons.Filled.Settings ,
-                            contentDescription = null)
-                    }
+                    AsyncImage(
+                        model = request ,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(end = 5.dp)
+                            .size(35.dp)
+                            .clip(CircleShape)
+                            .clickable { navigateToProfile() })
                 })
         }) {paddingValues->
         Column(modifier = Modifier
@@ -170,14 +182,14 @@ fun SingleIssue(
         append(simpleIssue.title)
         addStyle(
             style = SpanStyle(
-                fontSize = 21.sp
+                fontSize = 18.sp
             ),
             start = 0,
             end = simpleIssue.title.length
         )
         addStyle(
             style = SpanStyle(
-                fontSize = 21.sp,
+                fontSize = 18.sp,
                 color = issue_number_theme_color
             ),
             start = simpleIssue.title.indexOf('#'),
@@ -223,7 +235,7 @@ fun SingleIssue(
         Text(text = title,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
-            fontSize = 21.sp,
+            fontSize = 19.sp,
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Start)
 
@@ -265,11 +277,13 @@ fun RowItem(
 
 fun NavGraphBuilder.homeScreen(
     navigateToSignIn: () -> Unit,
-    navigateToIssueDetail: (id: String) -> Unit
+    navigateToIssueDetail: (id: String) -> Unit,
+    navigateToProfile: () -> Unit
 ){
     composable(route = ScreenRoutes.HomeScreen.route){
         HomeScreen(navigateToSignIn = navigateToSignIn,
-            navigateToIssueDetail = navigateToIssueDetail)
+            navigateToIssueDetail = navigateToIssueDetail,
+            navigateToProfile = navigateToProfile)
     }
 }
 

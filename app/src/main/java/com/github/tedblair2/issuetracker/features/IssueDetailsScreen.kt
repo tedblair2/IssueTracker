@@ -259,6 +259,11 @@ fun IssueDetailsContent(
     }
 }
 
+fun usernameMatch(input:String):Sequence<MatchResult>{
+    val regex=Regex("@\\w+")
+    return regex.findAll(input)
+}
+
 @Composable
 fun SingleComment(
     modifier: Modifier=Modifier,
@@ -275,6 +280,20 @@ fun SingleComment(
         }
         append(comment.duration)
     }
+
+    val text= buildAnnotatedString {
+        append(comment.body)
+        usernameMatch(comment.body).forEach { matchResult ->
+            addStyle(
+                style = SpanStyle(
+                    color = MaterialTheme.colorScheme.primary
+                ),
+                start = matchResult.range.first,
+                end = matchResult.range.last.plus(1)
+            )
+        }
+    }
+
     val context= LocalContext.current
     val request=ImageRequest.Builder(context)
         .data(comment.avatar)
@@ -300,7 +319,7 @@ fun SingleComment(
             Text(text = title,
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f))
-            Text(text = comment.body)
+            Text(text = text)
         }
     }
 }

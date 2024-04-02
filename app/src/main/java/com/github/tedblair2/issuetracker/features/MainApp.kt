@@ -33,11 +33,22 @@ fun MainApp() {
             },
             navigateToIssueDetail = {id->
                 navController.navigateToDetailScreen(id)
+            },
+            navigateToProfile = {
+                navController.navigateToProfile()
             }
         )
         issueDetailScreen(
             onNavigateUp = {
                 navController.navigateUp()
+            }
+        )
+        profileScreen(
+            onNavigateUp = {
+                navController.navigateUp()
+            },
+            navigateToSignIn = {
+                navController.navigateToSignIn()
             }
         )
     }
