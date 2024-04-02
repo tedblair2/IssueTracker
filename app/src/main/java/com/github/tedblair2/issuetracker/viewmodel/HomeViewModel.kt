@@ -39,6 +39,7 @@ class HomeViewModel @Inject constructor(
 
     private fun getCurrentUser(){
         viewModelScope.launch {
+            _homeScreenState.update { it.copy(isLoading = true) }
             userService.getUser()
                 .collect{user->
                     _homeScreenState.update {state->
@@ -60,6 +61,7 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
     private fun signOut(){
         Firebase.auth.signOut()
         _homeScreenState.update {

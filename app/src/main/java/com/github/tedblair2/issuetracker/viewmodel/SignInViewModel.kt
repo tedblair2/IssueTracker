@@ -25,10 +25,6 @@ class SignInViewModel @Inject constructor(
         savedStateHandle[SIGN_IN_STATE_KEY] =signInScreenState.value.copy(email=email,isWrongEmailFormat = false)
     }
 
-    private fun updateSignInStatus(status:Boolean,isWrongEmailFormat:Boolean,errorMessage:String){
-        savedStateHandle[SIGN_IN_STATE_KEY]=signInScreenState.value.copy(isWrongEmailFormat = isWrongEmailFormat, loginSuccess = status, errorMessage = errorMessage)
-    }
-
     fun onEvent(event:SignInScreenEvent){
         when(event){
             is SignInScreenEvent.TypeEmail->{

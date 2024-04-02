@@ -1,5 +1,6 @@
 package com.github.tedblair2.issuetracker.features
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -25,6 +27,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -47,12 +51,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.github.tedblair2.issuetracker.R
 import com.github.tedblair2.issuetracker.events.HomeScreenEvent
 import com.github.tedblair2.issuetracker.model.HomeScreenState
 import com.github.tedblair2.issuetracker.model.ScreenRoutes
 import com.github.tedblair2.issuetracker.model.SimpleIssue
+import com.github.tedblair2.issuetracker.ui.theme.issue_number_theme_color
 import com.github.tedblair2.issuetracker.viewmodel.HomeViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -85,6 +91,14 @@ internal fun HomeScreenContent(
 ){
     val flow= MutableStateFlow(homeScreenState.issuesData)
     val issues=flow.collectAsLazyPagingItems()
+    val loadState=issues.loadState.refresh
+    val context= LocalContext.current
+
+    LaunchedEffect(key1 = loadState) {
+        if (loadState is LoadState.Error){
+            Toast.makeText(context , "Error loading data" , Toast.LENGTH_SHORT).show()
+        }
+    }
 
     Scaffold(modifier = Modifier
         .fillMaxSize(),
@@ -114,7 +128,7 @@ internal fun HomeScreenContent(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally) {
 
-            if (homeScreenState.isLoading){
+            if (loadState is LoadState.Loading){
                 CircularProgressIndicator()
             }else{
                 LazyColumn(modifier = Modifier.fillMaxSize(),
@@ -122,7 +136,10 @@ internal fun HomeScreenContent(
                     items(count = issues.itemCount){index ->
                         val issue=issues[index] ?: SimpleIssue()
                         SingleIssue(simpleIssue = issue,
-                            modifier =Modifier.clickable { navigateToIssueDetail(issue.id) } )
+                            modifier =Modifier
+                                .clickable { navigateToIssueDetail(issue.id) })
+                        HorizontalDivider(modifier = Modifier
+                            .padding(top = 5.dp))
                     }
                 }
             }
@@ -140,6 +157,15 @@ fun SingleIssue(
     var color by remember {
         mutableStateOf(openColor)
     }
+    val commentInfo by remember {
+        derivedStateOf {
+            if (simpleIssue.commentCount==1){
+                "1 Comment"
+            }else{
+                "${simpleIssue.commentCount} Comments"
+            }
+        }
+    }
     val title= buildAnnotatedString {
         append(simpleIssue.title)
         addStyle(
@@ -152,7 +178,7 @@ fun SingleIssue(
         addStyle(
             style = SpanStyle(
                 fontSize = 21.sp,
-                color = Color.Red
+                color = issue_number_theme_color
             ),
             start = simpleIssue.title.indexOf('#'),
             end = simpleIssue.title.length
@@ -211,7 +237,7 @@ fun SingleIssue(
 
             RowItem(
                 painter = painterResource(id = R.drawable.baseline_chat_bubble_outline_24),
-                text = "${simpleIssue.commentCount} Comments"
+                text = commentInfo
             )
         }
     }

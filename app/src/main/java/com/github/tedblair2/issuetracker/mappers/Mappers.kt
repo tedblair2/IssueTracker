@@ -9,7 +9,9 @@ import com.github.tedblair2.issuetracker.model.DetailedIssue
 import com.github.tedblair2.issuetracker.model.IssuePage
 import com.github.tedblair2.issuetracker.model.SimpleIssue
 import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimePeriod
 import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.periodUntil
 import kotlinx.datetime.toLocalDateTime
@@ -60,13 +62,14 @@ fun IssueQuery.OnIssue.toDetailedIssue():DetailedIssue{
 
 fun CommentsQuery.Node1.toComment():Comment{
     val createdAt=Instant.parse(createdAt.toString())
+    val createdDateTime=createdAt.toLocalDateTime(TimeZone.currentSystemDefault())
     val period=createdAt.periodUntil(Clock.System.now(), TimeZone.currentSystemDefault())
     return Comment(
         id = id,
         body = body,
         author = author?.login ?: "",
         avatar = author?.avatarUrl.toString(),
-        timePeriod = period
+        duration = getTimePeriod(period,createdDateTime)
     )
 }
 
@@ -79,4 +82,20 @@ fun CommentsQuery.Comments.toCommentData():CommentData{
             it?.toComment() ?: Comment()
         } ?: emptyList()
     )
+}
+
+private fun getTimePeriod(period: DateTimePeriod,createdAt:LocalDateTime):String{
+    return if (period.years>1){
+        "${createdAt.dayOfMonth} ${createdAt.month} ${createdAt.year}"
+    }else if (period.months>1){
+        "${createdAt.dayOfMonth} ${createdAt.month}"
+    }else if (period.days>7){
+        "${period.days.div(7)}wk ago"
+    }else if (period.days>1){
+        "${period.days}d ago"
+    }else if (period.hours>1){
+        "${period.hours}h ago"
+    }else{
+        "${period.minutes}min ago"
+    }
 }

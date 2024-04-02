@@ -23,6 +23,8 @@
     paging-compose-version="3.3.0-alpha05"
     coil-version="2.4.0"
     play-services-version="1.8.0"
+    truth-version="1.4.0"
+    test-junit-jupiter = "5.9.2"
 
 [libraries]
     androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -54,10 +56,17 @@
     paging-compose={module="androidx.paging:paging-compose",version.ref="paging-compose-version"}
     coil={module="io.coil-kt:coil-compose",version.ref="coil-version"}
     kotlinx-play-services={module="org.jetbrains.kotlinx:kotlinx-coroutines-play-services",version.ref="play-services-version"}
+    truth={module="com.google.truth:truth",version.ref="truth-version"}
+    hilt-test = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt-version" }
+    hilt-test-ksp={module="com.google.dagger:hilt-android-compiler", version.ref="hilt-version"}
+    junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "test-junit-jupiter" }
+    jupiter = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "test-junit-jupiter" }
+    jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "test-junit-jupiter" }
 
 [bundles]
     paging=["paging-lib","paging-compose"]
     datastore=["datastore","protobuf"]
+    test=["junit","truth","jupiter-params","jupiter"]
 
 [plugins]
     androidApplication = { id = "com.android.application", version.ref = "agp" }

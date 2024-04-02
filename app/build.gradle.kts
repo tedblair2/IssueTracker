@@ -26,7 +26,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.github.tedblair2.issuetracker.CustomRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -59,6 +59,15 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    testOptions.unitTests {
+        isReturnDefaultValues = true
+        all { tests->
+            tests.useJUnitPlatform()
+            tests.testLogging {
+                events("passed","failed","skipped")
+            }
+        }
+    }
 }
 
 dependencies {
@@ -88,7 +97,12 @@ dependencies {
     implementation(libs.bundles.paging)
     //coil
     implementation(libs.coil)
-    testImplementation(libs.junit)
+
+    androidTestImplementation(libs.hilt.test)
+    kspAndroidTest(libs.hilt.test.ksp)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+    androidTestImplementation(libs.truth)
+    testImplementation(libs.bundles.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

@@ -40,6 +40,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
@@ -62,9 +63,9 @@ import com.github.tedblair2.issuetracker.model.DetailedIssue
 import com.github.tedblair2.issuetracker.model.IssueDetailScreenState
 import com.github.tedblair2.issuetracker.model.ScreenRoutes
 import com.github.tedblair2.issuetracker.ui.theme.IssueTrackerTheme
+import com.github.tedblair2.issuetracker.ui.theme.issue_number_theme_color
 import com.github.tedblair2.issuetracker.viewmodel.DetailViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.datetime.DateTimePeriod
 
 
 @Composable
@@ -100,6 +101,49 @@ fun IssueDetailsContent(
         mutableStateOf(openColor)
     }
 
+    val dateTxt= buildAnnotatedString {
+        withStyle(
+            style = SpanStyle(
+                fontSize = 14.sp
+            )
+        ){
+            append("${issueDetailScreenState.issue.createdAt.hour.pad()}:${issueDetailScreenState.issue.createdAt.minute.pad()}")
+        }
+        append(" \u2022 ")
+        withStyle(
+            style = SpanStyle(
+                fontSize = 14.sp
+            )
+        ){
+            append("${issueDetailScreenState.issue.createdAt.dayOfMonth} ${issueDetailScreenState.issue.createdAt.month} ${issueDetailScreenState.issue.createdAt.year}")
+        }
+    }
+
+    val title= buildAnnotatedString {
+        append(issueDetailScreenState.issue.title)
+        addStyle(
+            style = SpanStyle(
+                fontSize = 21.sp
+            ),
+            start = 0,
+            end = issueDetailScreenState.issue.title.length
+        )
+        addStyle(
+            style = SpanStyle(
+                fontSize = 21.sp,
+                color = issue_number_theme_color
+            ),
+            start = issueDetailScreenState.issue.title.indexOf('#'),
+            end = issueDetailScreenState.issue.title.length
+        )
+    }
+
+    val request=ImageRequest.Builder(context)
+        .data(issueDetailScreenState.issue.avatar)
+        .error(R.drawable.baseline_person_24)
+        .placeholder(R.drawable.baseline_person_24)
+        .build()
+
     LaunchedEffect(key1 = issueDetailScreenState.issue.state) {
         color = if (issueDetailScreenState.issue.state.lowercase()=="open"){
             openColor
@@ -119,9 +163,11 @@ fun IssueDetailsContent(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(text = issueDetailScreenState.issue.title,
+                    Text(text = title,
                         fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold)
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis)
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateUp) {
@@ -135,30 +181,6 @@ fun IssueDetailsContent(
         }
     ) {paddingValues->
 
-        val dateTxt= buildAnnotatedString {
-            withStyle(
-                style = SpanStyle(
-                    fontSize = 14.sp
-                )
-            ){
-                append("${issueDetailScreenState.issue.createdAt.hour}:${issueDetailScreenState.issue.createdAt.minute}")
-            }
-            append(" \u2022 ")
-            withStyle(
-                style = SpanStyle(
-                    fontSize = 14.sp
-                )
-            ){
-                append("${issueDetailScreenState.issue.createdAt.dayOfMonth} ${issueDetailScreenState.issue.createdAt.month} ${issueDetailScreenState.issue.createdAt.year}")
-            }
-        }
-
-        val context= LocalContext.current
-        val request=ImageRequest.Builder(context)
-            .data(issueDetailScreenState.issue.avatar)
-            .error(R.drawable.baseline_person_24)
-            .placeholder(R.drawable.baseline_person_24)
-            .build()
 
         Box(modifier = Modifier
             .fillMaxSize()
@@ -251,7 +273,7 @@ fun SingleComment(
         ){
             append(" \u2022 ")
         }
-        append(getTimePeriod(comment.timePeriod))
+        append(comment.duration)
     }
     val context= LocalContext.current
     val request=ImageRequest.Builder(context)
@@ -305,20 +327,8 @@ fun NavHostController.navigateToDetailScreen(id: String){
     navigate(ScreenRoutes.IssueDetailScreen.passParam(id))
 }
 
-fun getTimePeriod(period: DateTimePeriod):String{
-    return if (period.years>1){
-        "${period.years}yr ago"
-    }else if (period.months>1){
-        "${period.months}mon ago"
-    }else if (period.days>7){
-        "${period.days.div(7)}wk ago"
-    }else if (period.days>1){
-        "${period.days}d ago"
-    }else if (period.hours>1){
-        "${period.hours}h ago"
-    }else{
-        "${period.minutes}min ago"
-    }
+fun Int.pad(): String {
+    return this.toString().padStart(2, '0')
 }
 
 @PreviewLightDark
