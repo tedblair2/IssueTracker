@@ -1,0 +1,14 @@
+query Repositories($name:String!,$page:Int!,$endcursor:String){
+    user(login: $name){
+        issues(first: $page,after: $endcursor){
+            nodes {
+                repository {
+                    name
+                }
+            }
+            pageInfo {
+                endCursor
+            }
+        }
+    }
+}

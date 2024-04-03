@@ -12,5 +12,6 @@ data class SimpleIssue(
     val author:String="",
     val commentCount:Int=0,
     val state:String="",
-    val issueNumber:Int=0
+    val issueNumber:Int=0,
+    val repositoryName:String=""
 )

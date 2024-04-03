@@ -7,6 +7,7 @@ import androidx.paging.cachedIn
 import com.github.tedblair2.issuetracker.events.HomeScreenEvent
 import com.github.tedblair2.issuetracker.model.HomeScreenState
 import com.github.tedblair2.issuetracker.model.Response
+import com.github.tedblair2.issuetracker.model.State
 import com.github.tedblair2.issuetracker.repository.IssueRepository
 import com.github.tedblair2.issuetracker.repository.SignInService
 import com.github.tedblair2.issuetracker.repository.UserService
@@ -38,7 +39,49 @@ class HomeViewModel @Inject constructor(
             HomeScreenEvent.SignOut->{
                 signOut()
             }
+            is HomeScreenEvent.IssueFilterWithState->{
+                filterIssues(event.state)
+            }
+            HomeScreenEvent.ShowFilters->{
+                _homeScreenState.update {
+                    it.copy(
+                        showFilters = !homeScreenState.value.showFilters
+                    )
+                }
+            }
+            is HomeScreenEvent.GetRepositoryNames->{
+                getRepositories(event.filter)
+            }
+            is HomeScreenEvent.AddNewFilter->{
+                addNewFilter(event.name)
+            }
+            HomeScreenEvent.IssueFilterWithRepository->{
+                getCurrentUser()
+            }
         }
+    }
+
+    private fun addNewFilter(name:String){
+        _homeScreenState.update {
+            val list=homeScreenState.value.repositoryFilter.toMutableList()
+            if (list.contains(name)){
+                list.remove(name)
+            }else{
+                list.add(name)
+            }
+            it.copy(
+                repositoryFilter = list.toList()
+            )
+        }
+    }
+
+    private fun filterIssues(state:State){
+        _homeScreenState.update {
+            it.copy(
+                currentState = state
+            )
+        }
+        getCurrentUser()
     }
 
     private fun getCurrentUser(){
@@ -57,11 +100,25 @@ class HomeViewModel @Inject constructor(
 
     private fun getIssueList(username: String){
         viewModelScope.launch(ioDispatcher) {
-            issueRepository.getIssues(username).cachedIn(viewModelScope).collect{pagingData->
+            val state= listOf(homeScreenState.value.currentState)
+            val repositoryFilterList=homeScreenState.value.repositoryFilter
+            issueRepository.getIssues(username,state,repositoryFilterList).cachedIn(viewModelScope).collect{pagingData->
                 _homeScreenState.update {
                     it.copy(
                         issuesData = pagingData,
                         isLoading = false
+                    )
+                }
+            }
+        }
+    }
+    private fun getRepositories(filter:String=""){
+        viewModelScope.launch(ioDispatcher) {
+            val username=homeScreenState.value.user?.username ?: ""
+            issueRepository.getRepositoryNames("RaphaelNdonga",filter).cachedIn(viewModelScope).collect{pagingData->
+                _homeScreenState.update {
+                    it.copy(
+                        repositoryNames = pagingData
                     )
                 }
             }

@@ -1,0 +1,16 @@
+query Labels($name:String!,$issuePage:Int!){
+    user(login: $name){
+        issues(first: $issuePage){
+            nodes {
+                labels(first: 500){
+                    nodes {
+                        name
+                    }
+                }
+            }
+            pageInfo {
+                endCursor
+            }
+        }
+    }
+}

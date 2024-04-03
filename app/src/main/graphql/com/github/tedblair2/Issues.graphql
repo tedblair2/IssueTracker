@@ -17,6 +17,7 @@ query Issues($name:String!,$page:Int!,$endcursor:String,$state:[IssueState!],$la
                 }
                 state
             }
+            totalCount
             pageInfo {
                 hasNextPage
                 endCursor

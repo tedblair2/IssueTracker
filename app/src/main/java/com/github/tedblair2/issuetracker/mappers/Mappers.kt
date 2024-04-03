@@ -3,10 +3,14 @@ package com.github.tedblair2.issuetracker.mappers
 import com.github.tedblair2.CommentsQuery
 import com.github.tedblair2.IssueQuery
 import com.github.tedblair2.IssuesQuery
+import com.github.tedblair2.LabelsQuery
+import com.github.tedblair2.RepositoriesQuery
 import com.github.tedblair2.issuetracker.model.Comment
 import com.github.tedblair2.issuetracker.model.CommentData
 import com.github.tedblair2.issuetracker.model.DetailedIssue
 import com.github.tedblair2.issuetracker.model.IssuePage
+import com.github.tedblair2.issuetracker.model.Label
+import com.github.tedblair2.issuetracker.model.RepoData
 import com.github.tedblair2.issuetracker.model.SimpleIssue
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimePeriod
@@ -28,17 +32,27 @@ fun IssuesQuery.Node.toSimpleIssue():SimpleIssue{
         author = author?.login ?: "",
         commentCount = comments.totalCount,
         state = state.rawValue,
-        issueNumber = number
+        issueNumber = number,
+        repositoryName = repository.name
     )
 }
 
-fun IssuesQuery.Issues.toIssuePage():IssuePage{
+fun IssuesQuery.Issues.toIssuePage(
+    repositoryFilterList: List<String> = emptyList()
+):IssuePage{
     val issues=nodes
         ?.map { it?.toSimpleIssue() ?: SimpleIssue() }
         ?: emptyList()
 
+    val filteredIssues=if (repositoryFilterList.isEmpty()){
+        issues
+    }else{
+        issues
+            .filter { it.repositoryName in repositoryFilterList }
+    }
+
     return IssuePage(
-        nodes = issues,
+        nodes = filteredIssues,
         hasNextPage = pageInfo.hasNextPage,
         endCursor = pageInfo.endCursor
     )
@@ -82,6 +96,32 @@ fun CommentsQuery.Comments.toCommentData():CommentData{
             it?.toComment() ?: Comment()
         } ?: emptyList()
     )
+}
+
+fun LabelsQuery.Labels.toLabel():Label{
+    return Label(
+        labelNames = nodes?.map {
+            it?.name ?: ""
+        } ?: emptyList(),
+        cursor = pageInfo.endCursor
+    )
+}
+
+fun RepositoriesQuery.Issues.toRepoData(filter:String=""):RepoData{
+    return RepoData(
+        names = nodes?.map { it?.toRepository() ?: "" }
+            ?.filter {
+                it.lowercase().contains(filter)
+            }
+            ?.toSet()
+            ?.toList()
+            ?: emptyList(),
+        endCursor = pageInfo.endCursor
+    )
+}
+
+fun RepositoriesQuery.Node.toRepository():String{
+    return repository.name
 }
 
 private fun getTimePeriod(period: DateTimePeriod,createdAt:LocalDateTime):String{

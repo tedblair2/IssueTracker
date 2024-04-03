@@ -6,12 +6,15 @@ import com.apollographql.apollo3.exception.ApolloException
 import com.github.tedblair2.CommentsQuery
 import com.github.tedblair2.IssueQuery
 import com.github.tedblair2.IssuesQuery
+import com.github.tedblair2.RepositoriesQuery
 import com.github.tedblair2.issuetracker.mappers.toCommentData
 import com.github.tedblair2.issuetracker.mappers.toDetailedIssue
 import com.github.tedblair2.issuetracker.mappers.toIssuePage
+import com.github.tedblair2.issuetracker.mappers.toRepoData
 import com.github.tedblair2.issuetracker.model.CommentData
 import com.github.tedblair2.issuetracker.model.DetailedIssue
 import com.github.tedblair2.issuetracker.model.IssuePage
+import com.github.tedblair2.issuetracker.model.RepoData
 import com.github.tedblair2.issuetracker.model.Response
 import com.github.tedblair2.issuetracker.model.State
 import com.github.tedblair2.type.IssueState
@@ -21,7 +24,13 @@ class IssuesServiceImpl @Inject constructor(
     private val apolloClient: ApolloClient
 ): IssuesService {
 
-    override suspend fun getIssues(username: String,endCursor:String?,state:List<State>,labels:List<String>): Response<IssuePage>{
+    override suspend fun getIssues(
+        username: String,
+        endCursor:String?,
+        state:List<State>,
+        labels:List<String>,
+        repositoryFilterList: List<String>): Response<IssuePage>{
+
         val end=Optional.presentIfNotNull(endCursor)
         val filterState=if (state.isEmpty()){
             Optional.absent()
@@ -37,7 +46,6 @@ class IssuesServiceImpl @Inject constructor(
         }else{
             Optional.presentIfNotNull(labels)
         }
-
         return try {
             val data=apolloClient
                 .query(IssuesQuery(username,10,end,filterState,filterLabels))
@@ -45,7 +53,7 @@ class IssuesServiceImpl @Inject constructor(
                 .data
                 ?.user
                 ?.issues
-                ?.toIssuePage()
+                ?.toIssuePage(repositoryFilterList = repositoryFilterList)
                 ?: IssuePage()
             Response.Success(data)
         }catch (e: ApolloException){
@@ -100,4 +108,28 @@ class IssuesServiceImpl @Inject constructor(
             Response.Error(e.message ?: "Error fetching data")
         }
     }
+
+    override suspend fun getRepository(username: String , endCursor: String?,filter:String):Response<RepoData> {
+        val end=Optional.presentIfNotNull(endCursor)
+        return try {
+            val execute=apolloClient
+                .query(RepositoriesQuery(username,30,end))
+                .execute()
+            if (execute.hasErrors()){
+                Response.Error("Error fetching data")
+            }else{
+                val data=execute
+                    .dataAssertNoErrors
+                    .user
+                    ?.issues
+                    ?.toRepoData(filter) ?: RepoData()
+                Response.Success(data = data)
+            }
+        }catch (e:ApolloException){
+            Response.Error(e.message ?: "Error fetching data")
+        }catch (e:Exception){
+            Response.Error(e.message ?: "Error fetching data")
+        }
+    }
+
 }
