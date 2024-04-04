@@ -38,7 +38,7 @@ fun WelcomeScreen(
     val welcomeScreenState by viewModel.welcomeScreenState.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = welcomeScreenState.isLoggedIn) {
-        delay(2000)
+        delay(1500)
         if (welcomeScreenState.isLoggedIn){
             navigateToHome()
         }else{

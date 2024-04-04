@@ -17,6 +17,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -55,8 +59,43 @@ class HomeViewModel @Inject constructor(
             is HomeScreenEvent.AddNewFilter->{
                 addNewFilter(event.name)
             }
-            HomeScreenEvent.IssueFilterWithRepository->{
+            HomeScreenEvent.IssueFilter->{
                 getCurrentUser()
+            }
+            HomeScreenEvent.GetLabels->{
+                getLabels()
+            }
+            is HomeScreenEvent.AddNewLabelFilter->{
+                addLabelFilter(event.label)
+            }
+            is HomeScreenEvent.UpdateDates->{
+                updateDates(event.startDate,event.endDate)
+            }
+            HomeScreenEvent.ResetFilters->{
+                resetFilters()
+            }
+        }
+    }
+
+    private fun updateDates(startDate: LocalDate,endDate:LocalDate){
+        _homeScreenState.update {
+            it.copy(
+                startDate = startDate,
+                endDate = endDate,
+                isDateFilterOn = true
+            )
+        }
+    }
+
+    private fun getLabels(){
+        viewModelScope.launch(ioDispatcher) {
+            val username=homeScreenState.value.user?.username ?: ""
+            issueRepository.getLabels(username).cachedIn(viewModelScope).collect{pagingData->
+                _homeScreenState.update {
+                    it.copy(
+                        labels = pagingData
+                    )
+                }
             }
         }
     }
@@ -70,7 +109,41 @@ class HomeViewModel @Inject constructor(
                 list.add(name)
             }
             it.copy(
-                repositoryFilter = list.toList()
+                repositoryFilter = list.toList(),
+                isRepositoryFilterOn = list.isNotEmpty()
+            )
+        }
+    }
+
+    private fun resetFilters(){
+        _homeScreenState.update {
+            it.copy(
+                currentState = State.ALL,
+                labelsFilter = emptyList(),
+                repositoryFilter = emptyList(),
+                startDate = LocalDate(2000,1,1),
+                endDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
+                isDateFilterOn = false,
+                isStateFilterOn = false,
+                isLabelFilterOn = false,
+                isRepositoryFilterOn = false,
+                showFilters = false
+            )
+        }
+        getCurrentUser()
+    }
+
+    private fun addLabelFilter(label:String){
+        _homeScreenState.update {
+            val list=homeScreenState.value.labelsFilter.toMutableList()
+            if (list.contains(label)){
+                list.remove(label)
+            }else{
+                list.add(label)
+            }
+            it.copy(
+                labelsFilter = list.toList(),
+                isLabelFilterOn = list.isNotEmpty()
             )
         }
     }
@@ -78,7 +151,8 @@ class HomeViewModel @Inject constructor(
     private fun filterIssues(state:State){
         _homeScreenState.update {
             it.copy(
-                currentState = state
+                currentState = state,
+                isStateFilterOn = state != State.ALL
             )
         }
         getCurrentUser()
@@ -92,8 +166,7 @@ class HomeViewModel @Inject constructor(
                     _homeScreenState.update {state->
                         state.copy(user = user)
                     }
-                    val name="RaphaelNdonga"
-                    getIssueList(name)
+                    getIssueList(user.username)
                 }
         }
     }
@@ -102,7 +175,10 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             val state= listOf(homeScreenState.value.currentState)
             val repositoryFilterList=homeScreenState.value.repositoryFilter
-            issueRepository.getIssues(username,state,repositoryFilterList).cachedIn(viewModelScope).collect{pagingData->
+            val labelsFilter= homeScreenState.value.labelsFilter
+            val startDate= homeScreenState.value.startDate
+            val endDate=homeScreenState.value.endDate
+            issueRepository.getIssues(username,state,repositoryFilterList,labelsFilter,startDate,endDate).cachedIn(viewModelScope).collect{pagingData->
                 _homeScreenState.update {
                     it.copy(
                         issuesData = pagingData,
@@ -115,7 +191,7 @@ class HomeViewModel @Inject constructor(
     private fun getRepositories(filter:String=""){
         viewModelScope.launch(ioDispatcher) {
             val username=homeScreenState.value.user?.username ?: ""
-            issueRepository.getRepositoryNames("RaphaelNdonga",filter).cachedIn(viewModelScope).collect{pagingData->
+            issueRepository.getRepositoryNames(username,filter).cachedIn(viewModelScope).collect{pagingData->
                 _homeScreenState.update {
                     it.copy(
                         repositoryNames = pagingData
@@ -129,6 +205,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             signInService.signOut().collect{response->
                 if (response is Response.Success){
+                    resetFilters()
                     _homeScreenState.update {
                         it.copy(
                             isLoggedIn = false,

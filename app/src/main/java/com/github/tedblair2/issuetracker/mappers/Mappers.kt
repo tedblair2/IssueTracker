@@ -9,12 +9,13 @@ import com.github.tedblair2.issuetracker.model.Comment
 import com.github.tedblair2.issuetracker.model.CommentData
 import com.github.tedblair2.issuetracker.model.DetailedIssue
 import com.github.tedblair2.issuetracker.model.IssuePage
-import com.github.tedblair2.issuetracker.model.Label
+import com.github.tedblair2.issuetracker.model.LabelData
 import com.github.tedblair2.issuetracker.model.RepoData
 import com.github.tedblair2.issuetracker.model.SimpleIssue
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimePeriod
 import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.periodUntil
@@ -38,16 +39,21 @@ fun IssuesQuery.Node.toSimpleIssue():SimpleIssue{
 }
 
 fun IssuesQuery.Issues.toIssuePage(
-    repositoryFilterList: List<String> = emptyList()
+    repositoryFilterList: List<String> = emptyList(),
+    start:LocalDate?=null,
+    end:LocalDate=Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
 ):IssuePage{
     val issues=nodes
         ?.map { it?.toSimpleIssue() ?: SimpleIssue() }
         ?: emptyList()
+    val startDate= start ?: issues.last().createdAt.date
 
     val filteredIssues=if (repositoryFilterList.isEmpty()){
         issues
+            .filter { it.createdAt.date in startDate..end }
     }else{
         issues
+            .filter { it.createdAt.date in startDate..end }
             .filter { it.repositoryName in repositoryFilterList }
     }
 
@@ -56,6 +62,25 @@ fun IssuesQuery.Issues.toIssuePage(
         hasNextPage = pageInfo.hasNextPage,
         endCursor = pageInfo.endCursor
     )
+}
+private fun filterTest(){
+    val dates = listOf(
+        LocalDate(2024, 3, 1) ,
+        LocalDate(2024, 3, 10),
+        LocalDate(2024, 3, 15),
+        LocalDate(2024, 3, 20),
+        LocalDate(2024, 4, 1),
+        LocalDate(2024, 4, 5),
+        LocalDate(2024, 4, 10)
+    )
+    val startDate = LocalDate(2024, 3, 15)
+    val endDate = LocalDate(2024, 4, 5)
+
+    val filteredDates = dates.filter { it in startDate..endDate }
+
+    filteredDates.forEachIndexed { index, localDate ->
+        println("Date $index ${localDate.toString()}")
+    }
 }
 
 fun IssueQuery.OnIssue.toDetailedIssue():DetailedIssue{
@@ -98,13 +123,27 @@ fun CommentsQuery.Comments.toCommentData():CommentData{
     )
 }
 
-fun LabelsQuery.Labels.toLabel():Label{
-    return Label(
-        labelNames = nodes?.map {
-            it?.name ?: ""
-        } ?: emptyList(),
+fun LabelsQuery.Issues.toLabelData():LabelData{
+    val labels= mutableListOf<String>()
+    nodes?.forEach {
+        val childLabels=it?.toListLabel() ?: emptyList()
+        labels.addAll(childLabels)
+    }
+    return LabelData(
+        labelNames = labels
+            .toSet()
+            .toList(),
         cursor = pageInfo.endCursor
     )
+}
+
+fun LabelsQuery.Node.toListLabel():List<String>{
+    return labels?.nodes?.map {
+        it?.toLabel() ?: ""
+    } ?: emptyList()
+}
+fun LabelsQuery.Node1.toLabel():String{
+    return name
 }
 
 fun RepositoriesQuery.Issues.toRepoData(filter:String=""):RepoData{

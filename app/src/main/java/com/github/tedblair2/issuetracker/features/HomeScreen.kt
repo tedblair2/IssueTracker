@@ -1,6 +1,7 @@
 package com.github.tedblair2.issuetracker.features
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,14 +19,19 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -36,9 +42,11 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -82,6 +90,10 @@ import com.github.tedblair2.issuetracker.model.State
 import com.github.tedblair2.issuetracker.ui.theme.issue_number_theme_color
 import com.github.tedblair2.issuetracker.viewmodel.HomeViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
 @Composable
 fun HomeScreen(
@@ -113,12 +125,18 @@ internal fun HomeScreenContent(
     navigateToIssueDetail:(id:String)->Unit,
     navigateToProfile:()->Unit
 ){
+    BackHandler(enabled = homeScreenState.isLabelFilterOn || homeScreenState.isRepositoryFilterOn || homeScreenState.isStateFilterOn || homeScreenState.isDateFilterOn) {
+        onEvent(HomeScreenEvent.ResetFilters)
+    }
     val flow= MutableStateFlow(homeScreenState.issuesData)
     val reposFlow= MutableStateFlow(homeScreenState.repositoryNames)
+    val labelsFlow= MutableStateFlow(homeScreenState.labels)
     val issues=flow.collectAsLazyPagingItems()
     val repositories=reposFlow.collectAsLazyPagingItems()
+    val labels=labelsFlow.collectAsLazyPagingItems()
     val loadState=issues.loadState.refresh
     val context= LocalContext.current
+    val datePickerState= rememberDateRangePickerState()
     val request=ImageRequest.Builder(context)
         .data(homeScreenState.user?.avatar)
         .placeholder(R.drawable.baseline_person_24)
@@ -127,9 +145,16 @@ internal fun HomeScreenContent(
     var showDialog by remember {
         mutableStateOf(false)
     }
-    var showBottomSheet by remember {
+    var showRepoBottomSheet by remember {
         mutableStateOf(false)
     }
+
+    var showLabelsBottomSheet by remember {
+        mutableStateOf(false)
+    }
+    var showDatepicker by remember {
+        mutableStateOf(false)
+    } 
 
     LaunchedEffect(key1 = loadState) {
         if (loadState is LoadState.Error){
@@ -186,31 +211,36 @@ internal fun HomeScreenContent(
 
                             LazyRowItem(
                                 onClick = {
-
+                                          showDatepicker=true
                                 },
-                                text = "Date"
+                                text = "Date",
+                                isOn = homeScreenState.isDateFilterOn
                             )
 
                             LazyRowItem(
                                 onClick = {
                                           showDialog=true
                                 },
-                                text = "State"
+                                text = "State",
+                                isOn = homeScreenState.isStateFilterOn
                             )
 
                             LazyRowItem(
                                 onClick = {
-
+                                    showLabelsBottomSheet=true
+                                    onEvent(HomeScreenEvent.GetLabels)
                                 },
-                                text = "Labels"
+                                text = "Labels",
+                                isOn = homeScreenState.isLabelFilterOn
                             )
 
                             LazyRowItem(
                                 onClick = {
-                                    showBottomSheet=true
+                                    showRepoBottomSheet=true
                                     onEvent(HomeScreenEvent.GetRepositoryNames(""))
                                 },
-                                text = "Repository"
+                                text = "Repository",
+                                isOn = homeScreenState.isRepositoryFilterOn
                             )
                         }
                     }
@@ -240,12 +270,12 @@ internal fun HomeScreenContent(
                     currentState = homeScreenState.currentState)
             }
 
-            if (showBottomSheet){
+            if (showRepoBottomSheet){
                 RepositoryBottomSheet(
                     repositories = repositories,
                     onDismiss = {
-                        showBottomSheet = !showBottomSheet
-                        onEvent(HomeScreenEvent.IssueFilterWithRepository)
+                        showRepoBottomSheet = !showRepoBottomSheet
+                        onEvent(HomeScreenEvent.IssueFilter)
                     },
                     onRepositoryClick = {
                         onEvent(HomeScreenEvent.AddNewFilter(it))
@@ -255,7 +285,123 @@ internal fun HomeScreenContent(
                     },
                     repositoryFilterList = homeScreenState.repositoryFilter)
             }
+
+            if (showLabelsBottomSheet){
+                LabelsBottomSheet(
+                    labels = labels,
+                    onDismiss = {
+                        showLabelsBottomSheet=!showLabelsBottomSheet
+                        onEvent(HomeScreenEvent.IssueFilter)
+                    },
+                    onLabelClick = {
+                        onEvent(HomeScreenEvent.AddNewLabelFilter(it))
+                    },
+                    selectedLabels = homeScreenState.labelsFilter)
+            }
+            
+            if (showDatepicker){
+                DatePickerDialog(
+                    onDismissRequest = { showDatepicker=!showDatepicker } , 
+                    confirmButton = {
+                        TextButton(onClick = {
+                            showDatepicker=!showDatepicker
+                            val startDate=datePickerState.selectedStartDateMillis?.let {
+                                Instant.fromEpochMilliseconds(it).toLocalDateTime(TimeZone.currentSystemDefault()).date
+                            } ?: Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+                            val endDate=datePickerState.selectedEndDateMillis?.let {
+                                Instant.fromEpochMilliseconds(it).toLocalDateTime(TimeZone.currentSystemDefault()).date
+                            } ?: Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+                            println("Dates $startDate and $endDate")
+                            onEvent(HomeScreenEvent.UpdateDates(startDate,endDate))
+                            onEvent(HomeScreenEvent.IssueFilter)
+                        },
+                            enabled = datePickerState.selectedEndDateMillis != null) {
+                            Text(text = "Confirm")
+                        }
+                    },
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    DateRangePicker(state = datePickerState,
+                        modifier = Modifier.weight(1f))
+                }
+            }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LabelsBottomSheet(
+    onDismiss: () -> Unit={},
+    labels:LazyPagingItems<String>,
+    onLabelClick:(String)->Unit={},
+    selectedLabels:List<String> = emptyList()
+) {
+    val modalSheetState= rememberModalBottomSheetState()
+    val loadState=labels.loadState.refresh
+
+    ModalBottomSheet(onDismissRequest = onDismiss,
+        sheetState = modalSheetState) {
+        
+        Text(text = "Labels from your Issues" ,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(vertical = 10.dp)
+                .fillMaxWidth())
+        
+        if (loadState is LoadState.Loading){
+            Box(modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center){
+                CircularProgressIndicator()
+            }
+        }else{
+            LazyVerticalStaggeredGrid(
+                columns = StaggeredGridCells.Adaptive(150.dp),
+                verticalItemSpacing = 5.dp,
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp , horizontal = 8.dp)) {
+                items(labels.itemCount){
+                    val label=labels[it] ?: ""
+                    val isChecked=selectedLabels.contains(label)
+                    LabelItem(text = label ,
+                        modifier = Modifier
+                            .clickable { onLabelClick(label) },
+                        isSelected = isChecked,
+                        onSelect = {
+                            onLabelClick(label)
+                        })
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(60.dp))
+    }
+}
+
+@Composable
+fun LabelItem(
+    modifier: Modifier=Modifier,
+    isSelected:Boolean=false,
+    text: String="",
+    onSelect:(Boolean)->Unit={}
+) {
+    Row(modifier = modifier
+        .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(5.dp)){
+        Checkbox(
+            checked = isSelected ,
+            onCheckedChange =onSelect,
+            modifier = Modifier
+                .size(20.dp))
+        Text(text = text,
+            fontSize = 15.sp,
+            modifier = Modifier
+                .padding(vertical = 5.dp, horizontal = 5.dp))
     }
 }
 
@@ -515,13 +661,32 @@ fun RowItem(
 
 fun LazyListScope.LazyRowItem(
     onClick:()->Unit={},
-    text: String=""
+    text: String="",
+    isOn:Boolean=true
 ) {
     item {
+        val selectedColor=MaterialTheme.colorScheme.onBackground.copy(alpha = 0.05f)
+        val unSelectedColor=MaterialTheme.colorScheme.background
+
+        val color by remember {
+            derivedStateOf {
+                if (isOn){
+                    selectedColor
+                }else unSelectedColor
+            }
+        }
+
         OutlinedButton(onClick = onClick,
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier
-                .height(33.dp)) {
+                .height(33.dp),
+            colors = ButtonColors(
+                containerColor = color,
+                contentColor = MaterialTheme.colorScheme.onBackground,
+                disabledContainerColor = MaterialTheme.colorScheme.background,
+                disabledContentColor = MaterialTheme.colorScheme.onBackground
+            )
+        ) {
             Text(text = text, fontSize = 12.sp)
             Icon(imageVector = Icons.Filled.ArrowDropDown ,
                 contentDescription = null,

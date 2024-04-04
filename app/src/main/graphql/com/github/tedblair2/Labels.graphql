@@ -1,6 +1,6 @@
-query Labels($name:String!,$issuePage:Int!){
+query Labels($name:String!,$issuePage:Int!,$endCursor:String){
     user(login: $name){
-        issues(first: $issuePage){
+        issues(first: $issuePage,after: $endCursor){
             nodes {
                 labels(first: 500){
                     nodes {
