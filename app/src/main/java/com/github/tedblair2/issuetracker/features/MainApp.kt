@@ -48,6 +48,7 @@ fun MainApp() {
                 navController.navigateUp()
             },
             navigateToSignIn = {
+                navController.popBackStack(navController.graph.id,true)
                 navController.navigateToSignIn()
             }
         )
