@@ -63,25 +63,6 @@ fun IssuesQuery.Issues.toIssuePage(
         endCursor = pageInfo.endCursor
     )
 }
-private fun filterTest(){
-    val dates = listOf(
-        LocalDate(2024, 3, 1) ,
-        LocalDate(2024, 3, 10),
-        LocalDate(2024, 3, 15),
-        LocalDate(2024, 3, 20),
-        LocalDate(2024, 4, 1),
-        LocalDate(2024, 4, 5),
-        LocalDate(2024, 4, 10)
-    )
-    val startDate = LocalDate(2024, 3, 15)
-    val endDate = LocalDate(2024, 4, 5)
-
-    val filteredDates = dates.filter { it in startDate..endDate }
-
-    filteredDates.forEachIndexed { index, localDate ->
-        println("Date $index ${localDate.toString()}")
-    }
-}
 
 fun IssueQuery.OnIssue.toDetailedIssue():DetailedIssue{
     val desc= body.ifEmpty { "No Description" }
