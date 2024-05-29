@@ -21,24 +21,36 @@ fun MainApp() {
     NavHost(navController = navController, startDestination = Welcome){
         welcomeScreen(
             navigateToSignIn = {
-                navController.popBackStack(navController.graph.id,true)
-                navController.navigateToSignIn()
+                navController.navigateToSignIn(options = {
+                    popUpTo(navController.graph.id){
+                        inclusive=true
+                    }
+                })
             },
             navigateToHome = {
-                navController.popBackStack(navController.graph.id,true)
-                navController.navigateToHome()
+                navController.navigateToHome(options = {
+                    popUpTo(navController.graph.id){
+                        inclusive=true
+                    }
+                })
             }
         )
         signInScreen(
             navigateToHome = {
-                navController.popBackStack(navController.graph.id,true)
-                navController.navigateToHome()
+                navController.navigateToHome(options = {
+                    popUpTo(navController.graph.id){
+                        inclusive=true
+                    }
+                })
             }
         )
         homeScreen(
             navigateToSignIn = {
-                navController.popBackStack(navController.graph.id,true)
-                navController.navigateToSignIn()
+                navController.navigateToSignIn(options = {
+                    popUpTo(navController.graph.id){
+                        inclusive=true
+                    }
+                })
             },
             navigateToIssueDetail = {id->
                 navController.navigateToDetailScreen(id)
@@ -57,9 +69,11 @@ fun MainApp() {
                 navController.navigateUp()
             },
             navigateToSignIn = {
-                navController.navigateToSignIn(){
-                    popBackStack(navController.graph.id,true)
-                }
+                navController.navigateToSignIn(options ={
+                    popUpTo(navController.graph.id){
+                        inclusive=true
+                    }
+                })
             }
         )
     }

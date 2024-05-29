@@ -2,6 +2,7 @@ package com.github.tedblair2.issuetracker.features.home.ui
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.composable
 import kotlinx.serialization.Serializable
 
@@ -17,10 +18,13 @@ fun NavGraphBuilder.homeScreen(
     composable<Home>{
         HomeScreen(navigateToSignIn = navigateToSignIn,
             navigateToIssueDetail = navigateToIssueDetail,
-            navigateToProfile = navigateToProfile)
+            navigateToProfile = navigateToProfile
+        )
     }
 }
 
-fun NavController.navigateToHome(){
-    navigate(Home)
+fun NavController.navigateToHome(options: NavOptionsBuilder.()->Unit={}){
+    navigate(Home){
+        options()
+    }
 }

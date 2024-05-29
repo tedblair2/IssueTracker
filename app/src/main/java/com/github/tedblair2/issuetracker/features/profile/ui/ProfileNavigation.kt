@@ -8,18 +8,20 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data object Profile
+
 fun NavGraphBuilder.profileScreen(
     onNavigateUp: () -> Unit,
     navigateToSignIn: () -> Unit
 ){
     composable<Profile>{
         ProfileScreen(onNavigateUp = onNavigateUp,
-            navigateToSignIn = navigateToSignIn)
+            navigateToSignIn = navigateToSignIn
+        )
     }
 }
 
 fun NavController.navigateToProfile(options:NavOptionsBuilder.()->Unit={}){
     navigate(Profile){
-        this.options()
+        options()
     }
 }

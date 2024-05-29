@@ -17,12 +17,13 @@ fun NavGraphBuilder.issueDetailScreen(
         val args=navBackStack.toRoute<Details>()
         IssueDetailScreen(
             id = args.id,
-            onNavigateUp=onNavigateUp)
+            onNavigateUp=onNavigateUp
+        )
     }
 }
 
 fun NavHostController.navigateToDetailScreen(id: String,options:NavOptionsBuilder.()->Unit={}){
     navigate(Details(id)){
-        this.options()
+        options()
     }
 }
