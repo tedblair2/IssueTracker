@@ -1,4 +1,4 @@
-package com.github.tedblair2.issuetracker.features
+package com.github.tedblair2.issuetracker.features.home.ui
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -73,9 +73,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.compose.composable
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -84,11 +81,10 @@ import coil.request.ImageRequest
 import com.github.tedblair2.issuetracker.R
 import com.github.tedblair2.issuetracker.events.HomeScreenEvent
 import com.github.tedblair2.issuetracker.model.HomeScreenState
-import com.github.tedblair2.issuetracker.model.ScreenRoutes
 import com.github.tedblair2.issuetracker.model.SimpleIssue
 import com.github.tedblair2.issuetracker.model.State
 import com.github.tedblair2.issuetracker.ui.theme.issue_number_theme_color
-import com.github.tedblair2.issuetracker.viewmodel.HomeViewModel
+import com.github.tedblair2.issuetracker.features.home.viewmodel.HomeViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -119,7 +115,7 @@ fun HomeScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun HomeScreenContent(
+private fun HomeScreenContent(
     homeScreenState: HomeScreenState,
     onEvent:(HomeScreenEvent)->Unit,
     navigateToIssueDetail:(id:String)->Unit,
@@ -693,20 +689,4 @@ fun LazyListScope.LazyRowItem(
                 modifier = Modifier.size(17.dp))
         }
     }
-}
-
-fun NavGraphBuilder.homeScreen(
-    navigateToSignIn: () -> Unit,
-    navigateToIssueDetail: (id: String) -> Unit,
-    navigateToProfile: () -> Unit
-){
-    composable(route = ScreenRoutes.HomeScreen.route){
-        HomeScreen(navigateToSignIn = navigateToSignIn,
-            navigateToIssueDetail = navigateToIssueDetail,
-            navigateToProfile = navigateToProfile)
-    }
-}
-
-fun NavController.navigateToHome(){
-    navigate(ScreenRoutes.HomeScreen.route)
 }

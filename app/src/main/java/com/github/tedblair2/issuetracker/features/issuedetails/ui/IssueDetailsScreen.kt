@@ -1,4 +1,4 @@
-package com.github.tedblair2.issuetracker.features
+package com.github.tedblair2.issuetracker.features.issuedetails.ui
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -47,26 +47,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
-import androidx.navigation.NavType
-import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.github.tedblair2.issuetracker.R
 import com.github.tedblair2.issuetracker.events.IssueDetailEvent
-import com.github.tedblair2.issuetracker.model.ARG_1
+import com.github.tedblair2.issuetracker.features.issuedetails.viewmodel.DetailViewModel
 import com.github.tedblair2.issuetracker.model.Comment
 import com.github.tedblair2.issuetracker.model.DetailedIssue
 import com.github.tedblair2.issuetracker.model.IssueDetailScreenState
-import com.github.tedblair2.issuetracker.model.ScreenRoutes
 import com.github.tedblair2.issuetracker.ui.theme.IssueTrackerTheme
 import com.github.tedblair2.issuetracker.ui.theme.issue_number_theme_color
-import com.github.tedblair2.issuetracker.viewmodel.DetailViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-
 
 @Composable
 fun IssueDetailScreen(
@@ -87,10 +79,10 @@ fun IssueDetailScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun IssueDetailsContent(
+private fun IssueDetailsContent(
     issueDetailScreenState: IssueDetailScreenState,
     onNavigateUp: () -> Unit={}
-    ) {
+) {
     val context= LocalContext.current
     val flow= MutableStateFlow(issueDetailScreenState.comments)
     val comments=flow.collectAsLazyPagingItems()
@@ -236,7 +228,7 @@ fun IssueDetailsContent(
                                 modifier = Modifier
                                     .padding(vertical = 10.dp)
                                     .fillMaxWidth())
-                            
+
                             Text(text = dateTxt,
                                 fontSize = 14.sp,
                                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
@@ -322,28 +314,6 @@ fun SingleComment(
             Text(text = text)
         }
     }
-}
-
-fun NavGraphBuilder.issueDetailScreen(
-    onNavigateUp: () -> Unit
-){
-    composable(
-        route = ScreenRoutes.IssueDetailScreen.route,
-        arguments = listOf(
-            navArgument(ARG_1){
-                type= NavType.StringType
-            }
-        )
-    ){navBackStack->
-        val id=navBackStack.arguments?.getString(ARG_1).toString()
-        IssueDetailScreen(
-            id = id,
-            onNavigateUp=onNavigateUp)
-    }
-}
-
-fun NavHostController.navigateToDetailScreen(id: String){
-    navigate(ScreenRoutes.IssueDetailScreen.passParam(id))
 }
 
 fun Int.pad(): String {

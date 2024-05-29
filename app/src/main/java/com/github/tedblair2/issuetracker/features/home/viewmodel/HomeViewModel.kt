@@ -1,4 +1,4 @@
-package com.github.tedblair2.issuetracker.viewmodel
+package com.github.tedblair2.issuetracker.features.home.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -1,4 +1,4 @@
-package com.github.tedblair2.issuetracker.features
+package com.github.tedblair2.issuetracker.features.signin.ui
 
 import android.content.Context
 import android.content.ContextWrapper
@@ -39,14 +39,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.compose.composable
 import com.github.tedblair2.issuetracker.R
 import com.github.tedblair2.issuetracker.events.SignInScreenEvent
-import com.github.tedblair2.issuetracker.model.ScreenRoutes
 import com.github.tedblair2.issuetracker.model.SignInScreenState
-import com.github.tedblair2.issuetracker.viewmodel.SignInViewModel
+import com.github.tedblair2.issuetracker.features.signin.viewmodel.SignInViewModel
 
 @Composable
 fun SignInScreen(
@@ -68,7 +64,7 @@ fun SignInScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignInScreenContent(
+private fun SignInScreenContent(
     state:SignInScreenState= SignInScreenState(),
     onEvent:(SignInScreenEvent)->Unit={},
 ){
@@ -180,18 +176,6 @@ fun Context.getActivity():ComponentActivity?{
         currentContext=currentContext.baseContext
     }
     return null
-}
-
-fun NavGraphBuilder.signInScreen(
-    navigateToHome: () -> Unit
-){
-    composable(route = ScreenRoutes.SignInScreen.route){
-        SignInScreen(navigateToHome = navigateToHome)
-    }
-}
-
-fun NavController.navigateToSignIn(){
-    navigate(ScreenRoutes.SignInScreen.route)
 }
 
 @Preview

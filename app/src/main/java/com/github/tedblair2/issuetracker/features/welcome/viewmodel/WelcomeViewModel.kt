@@ -1,4 +1,4 @@
-package com.github.tedblair2.issuetracker.viewmodel
+package com.github.tedblair2.issuetracker.features.welcome.viewmodel
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -17,7 +17,7 @@ class WelcomeViewModel @Inject constructor(
 ):ViewModel() {
 
     val welcomeScreenState=savedStateHandle.getStateFlow(
-        WELCOME_SCREEN_KEY,WelcomeScreenState()
+        WELCOME_SCREEN_KEY ,WelcomeScreenState()
     )
 
     init {

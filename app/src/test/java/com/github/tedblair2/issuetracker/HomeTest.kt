@@ -11,7 +11,7 @@ import com.github.tedblair2.issuetracker.repository.FakeIssueImpl
 import com.github.tedblair2.issuetracker.repository.FakeUserServiceImpl
 import com.github.tedblair2.issuetracker.repository.IssueRepository
 import com.github.tedblair2.issuetracker.repository.SignInService
-import com.github.tedblair2.issuetracker.viewmodel.HomeViewModel
+import com.github.tedblair2.issuetracker.features.home.viewmodel.HomeViewModel
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

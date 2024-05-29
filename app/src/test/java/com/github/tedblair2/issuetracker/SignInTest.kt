@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.github.tedblair2.issuetracker.events.SignInScreenEvent
 import com.github.tedblair2.issuetracker.model.SignInScreenState
 import com.github.tedblair2.issuetracker.repository.SignInService
-import com.github.tedblair2.issuetracker.viewmodel.SignInViewModel
+import com.github.tedblair2.issuetracker.features.signin.viewmodel.SignInViewModel
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher

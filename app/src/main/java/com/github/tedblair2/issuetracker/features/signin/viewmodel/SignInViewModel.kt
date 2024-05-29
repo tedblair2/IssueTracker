@@ -1,4 +1,4 @@
-package com.github.tedblair2.issuetracker.viewmodel
+package com.github.tedblair2.issuetracker.features.signin.viewmodel
 
 import android.app.Activity
 import androidx.lifecycle.SavedStateHandle
@@ -21,7 +21,7 @@ class SignInViewModel @Inject constructor(
 ):ViewModel() {
 
     val signInScreenState=savedStateHandle.getStateFlow(
-        SIGN_IN_STATE_KEY,SignInScreenState())
+        SIGN_IN_STATE_KEY ,SignInScreenState())
 
     private fun updateEmail(email: String){
         savedStateHandle[SIGN_IN_STATE_KEY] =signInScreenState.value.copy(email=email,isWrongEmailFormat = false)

@@ -1,4 +1,4 @@
-package com.github.tedblair2.issuetracker.features
+package com.github.tedblair2.issuetracker.features.welcome.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,12 +21,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.compose.composable
 import com.github.tedblair2.issuetracker.R
-import com.github.tedblair2.issuetracker.model.ScreenRoutes
-import com.github.tedblair2.issuetracker.viewmodel.WelcomeViewModel
+import com.github.tedblair2.issuetracker.features.welcome.viewmodel.WelcomeViewModel
 import kotlinx.coroutines.delay
 
 @Composable
@@ -51,7 +47,7 @@ fun WelcomeScreen(
 }
 
 @Composable
-fun WelcomeScreenContent() {
+private fun WelcomeScreenContent() {
     Column(modifier = Modifier
         .fillMaxSize()
         .background(color = MaterialTheme.colorScheme.background),
@@ -68,22 +64,6 @@ fun WelcomeScreenContent() {
                 .size(35.dp)
         )
     }
-}
-
-fun NavGraphBuilder.welcomeScreen(
-    navigateToSignIn: () -> Unit,
-    navigateToHome: () -> Unit
-){
-    composable(route = ScreenRoutes.WelcomeScreen.route){
-        WelcomeScreen(
-            navigateToSignIn = navigateToSignIn,
-            navigateToHome = navigateToHome
-        )
-    }
-}
-
-fun NavController.navigateToWelcome(){
-    navigate(ScreenRoutes.WelcomeScreen.route)
 }
 
 @Preview

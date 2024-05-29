@@ -1,4 +1,4 @@
-package com.github.tedblair2.issuetracker.features
+package com.github.tedblair2.issuetracker.features.profile.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -41,16 +41,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.compose.composable
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.github.tedblair2.issuetracker.R
 import com.github.tedblair2.issuetracker.events.ProfileScreenEvent
-import com.github.tedblair2.issuetracker.model.ScreenRoutes
 import com.github.tedblair2.issuetracker.model.User
-import com.github.tedblair2.issuetracker.viewmodel.ProfileViewModel
+import com.github.tedblair2.issuetracker.features.profile.viewmodel.ProfileViewModel
 
 @Composable
 fun ProfileScreen(
@@ -74,7 +70,7 @@ fun ProfileScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreenContent(
+private fun ProfileScreenContent(
     user: User?=null,
     onEvent:(ProfileScreenEvent)->Unit={},
     onNavigateUp: () -> Unit={}
@@ -214,20 +210,6 @@ fun ProfileRowItem(
         Text(text = text,
             fontSize = 19.sp)
     }
-}
-
-fun NavGraphBuilder.profileScreen(
-    onNavigateUp: () -> Unit,
-    navigateToSignIn: () -> Unit
-){
-    composable(route = ScreenRoutes.ProfileScreen.route){
-        ProfileScreen(onNavigateUp = onNavigateUp,
-            navigateToSignIn = navigateToSignIn)
-    }
-}
-
-fun NavController.navigateToProfile(){
-    navigate(ScreenRoutes.ProfileScreen.route)
 }
 
 @Preview
