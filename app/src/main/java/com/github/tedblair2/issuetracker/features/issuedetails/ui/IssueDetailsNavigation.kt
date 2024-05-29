@@ -2,30 +2,27 @@ package com.github.tedblair2.issuetracker.features.issuedetails.ui
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
+import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
-import com.github.tedblair2.issuetracker.model.ARG_1
-import com.github.tedblair2.issuetracker.model.ScreenRoutes
+import androidx.navigation.toRoute
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class Details(val id:String)
 
 fun NavGraphBuilder.issueDetailScreen(
     onNavigateUp: () -> Unit
 ){
-    composable(
-        route = ScreenRoutes.IssueDetailScreen.route,
-        arguments = listOf(
-            navArgument(ARG_1){
-                type= NavType.StringType
-            }
-        )
-    ){navBackStack->
-        val id=navBackStack.arguments?.getString(ARG_1).toString()
+    composable<Details>{navBackStack->
+        val args=navBackStack.toRoute<Details>()
         IssueDetailScreen(
-            id = id,
+            id = args.id,
             onNavigateUp=onNavigateUp)
     }
 }
 
-fun NavHostController.navigateToDetailScreen(id: String){
-    navigate(ScreenRoutes.IssueDetailScreen.passParam(id))
+fun NavHostController.navigateToDetailScreen(id: String,options:NavOptionsBuilder.()->Unit={}){
+    navigate(Details(id)){
+        this.options()
+    }
 }

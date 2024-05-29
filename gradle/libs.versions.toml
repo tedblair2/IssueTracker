@@ -27,6 +27,7 @@
     test-junit-jupiter = "5.9.2"
     coroutine-test-version="1.8.1-Beta"
     compose-compiler-extension-version="1.5.13"
+    serialization = "1.6.3"
 
 [libraries]
     androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -65,12 +66,13 @@
     jupiter = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "test-junit-jupiter" }
     jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "test-junit-jupiter" }
     coroutines-test={module="org.jetbrains.kotlinx:kotlinx-coroutines-test",version.ref="coroutine-test-version"}
+    kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization"}
 
 [bundles]
     compose=["androidx-ui","androidx-material3","androidx-ui-graphics","androidx-ui-tooling-preview","compose-navigation"]
     androidx=["androidx-core-ktx","compose-lifecycle","androidx-lifecycle-runtime-ktx","androidx-activity-compose"]
     hilt=["dagger-hilt","compose-hilt-navigation"]
-    kotlinx=["kotlin-datetime","kotlinx-play-services"]
+    kotlinx=["kotlin-datetime","kotlinx-play-services","kotlinx-serialization-json"]
     paging=["paging-lib","paging-compose"]
     datastore=["datastore","protobuf"]
     test=["junit","truth","jupiter-params","jupiter","coroutines-test"]
@@ -84,4 +86,5 @@
     google-services-plugin={id="com.google.gms.google-services",version.ref="googleServices"}
     parcelable = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
     protobuf-plugin ={id="com.google.protobuf",version.ref="protobuf-version"}
+    kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 

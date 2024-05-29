@@ -8,4 +8,5 @@ plugins {
     alias(libs.plugins.google.services.plugin) apply false
     alias(libs.plugins.parcelable) apply false
     alias(libs.plugins.protobuf.plugin) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
 }

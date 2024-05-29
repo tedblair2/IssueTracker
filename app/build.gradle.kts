@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.google.services.plugin)
     alias(libs.plugins.parcelable)
     alias(libs.plugins.protobuf.plugin)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 apollo {

@@ -11,14 +11,14 @@ import com.github.tedblair2.issuetracker.features.profile.ui.navigateToProfile
 import com.github.tedblair2.issuetracker.features.profile.ui.profileScreen
 import com.github.tedblair2.issuetracker.features.signin.ui.navigateToSignIn
 import com.github.tedblair2.issuetracker.features.signin.ui.signInScreen
+import com.github.tedblair2.issuetracker.features.welcome.ui.Welcome
 import com.github.tedblair2.issuetracker.features.welcome.ui.welcomeScreen
-import com.github.tedblair2.issuetracker.model.ScreenRoutes
 
 @Composable
 fun MainApp() {
     val navController= rememberNavController()
 
-    NavHost(navController = navController, startDestination = ScreenRoutes.WelcomeScreen.route){
+    NavHost(navController = navController, startDestination = Welcome){
         welcomeScreen(
             navigateToSignIn = {
                 navController.popBackStack(navController.graph.id,true)
@@ -57,8 +57,9 @@ fun MainApp() {
                 navController.navigateUp()
             },
             navigateToSignIn = {
-                navController.popBackStack(navController.graph.id,true)
-                navController.navigateToSignIn()
+                navController.navigateToSignIn(){
+                    popBackStack(navController.graph.id,true)
+                }
             }
         )
     }

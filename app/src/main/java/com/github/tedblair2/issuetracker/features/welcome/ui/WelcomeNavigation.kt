@@ -3,14 +3,15 @@ package com.github.tedblair2.issuetracker.features.welcome.ui
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.github.tedblair2.issuetracker.features.welcome.ui.WelcomeScreen
-import com.github.tedblair2.issuetracker.model.ScreenRoutes
+import kotlinx.serialization.Serializable
 
+@Serializable
+data object Welcome
 fun NavGraphBuilder.welcomeScreen(
     navigateToSignIn: () -> Unit,
     navigateToHome: () -> Unit
 ){
-    composable(route = ScreenRoutes.WelcomeScreen.route){
+    composable<Welcome>{
         WelcomeScreen(
             navigateToSignIn = navigateToSignIn,
             navigateToHome = navigateToHome
@@ -19,5 +20,5 @@ fun NavGraphBuilder.welcomeScreen(
 }
 
 fun NavController.navigateToWelcome(){
-    navigate(ScreenRoutes.WelcomeScreen.route)
+    navigate(Welcome)
 }
