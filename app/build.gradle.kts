@@ -52,7 +52,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
+        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.extension.version.get()
     }
     packaging {
         resources {
@@ -71,26 +71,16 @@ android {
 }
 
 dependencies {
-
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
+    implementation(libs.bundles.androidx)
     implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-    implementation(libs.dagger.hilt)
-    implementation(libs.compose.hilt.navigation)
-    implementation(libs.compose.navigation)
+    implementation(libs.bundles.compose)
+    implementation(libs.bundles.hilt)
     ksp(libs.dagger.hilt.ksp)
     implementation(libs.apollo)
-    implementation(libs.compose.lifecycle)
-    implementation(libs.kotlin.datetime)
+    implementation(libs.bundles.kotlinx)
     //firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
-    implementation(libs.kotlinx.play.services)
     //datastore
     implementation(libs.bundles.datastore)
     //paging

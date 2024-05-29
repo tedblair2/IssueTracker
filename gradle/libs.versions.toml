@@ -1,31 +1,32 @@
 [versions]
-    agp = "8.3.1"
-    kotlin = "1.9.10"
-    coreKtx = "1.12.0"
+    agp = "8.4.1"
+    kotlin = "1.9.23"
+    coreKtx = "1.13.1"
     junit = "4.13.2"
     junitVersion = "1.1.5"
     espressoCore = "3.5.1"
-    lifecycleRuntimeKtx = "2.7.0"
-    activityCompose = "1.8.2"
-    composeBom = "2024.03.00"
-    ksp-plugin-version="1.9.10-1.0.13"
+    lifecycleRuntimeKtx = "2.8.0"
+    activityCompose = "1.9.0"
+    composeBom = "2024.05.00"
+    ksp-plugin-version="1.9.23-1.0.20"
     hilt-version="2.49"
     compose-hilt-navigation-version="1.2.0"
     apollo-version="4.0.0-beta.5"
-    firebase-bom-version="32.8.0"
+    firebase-bom-version="33.0.0"
     googleServices = "4.4.1"
-    compose-navigation-version="2.7.7"
+    compose-navigation-version="2.8.0-beta01"
     protobuf-version="0.9.1"
-    datastore-version="1.0.0"
+    datastore-version="1.1.1"
     protobuf-lite-version="3.18.0"
     kotlin-datetime-version="0.6.0-RC.2"
-    paging-version="3.2.1"
-    paging-compose-version="3.3.0-alpha05"
+    paging-version="3.3.0"
+    paging-compose-version="3.3.0"
     coil-version="2.4.0"
     play-services-version="1.8.0"
     truth-version="1.4.0"
     test-junit-jupiter = "5.9.2"
     coroutine-test-version="1.8.1-Beta"
+    compose-compiler-extension-version="1.5.13"
 
 [libraries]
     androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -66,6 +67,10 @@
     coroutines-test={module="org.jetbrains.kotlinx:kotlinx-coroutines-test",version.ref="coroutine-test-version"}
 
 [bundles]
+    compose=["androidx-ui","androidx-material3","androidx-ui-graphics","androidx-ui-tooling-preview","compose-navigation"]
+    androidx=["androidx-core-ktx","compose-lifecycle","androidx-lifecycle-runtime-ktx","androidx-activity-compose"]
+    hilt=["dagger-hilt","compose-hilt-navigation"]
+    kotlinx=["kotlin-datetime","kotlinx-play-services"]
     paging=["paging-lib","paging-compose"]
     datastore=["datastore","protobuf"]
     test=["junit","truth","jupiter-params","jupiter","coroutines-test"]
