@@ -28,6 +28,7 @@
     coroutine-test-version="1.8.1-Beta"
     compose-compiler-extension-version="1.5.13"
     serialization = "1.6.3"
+    apollo-cache-version="3.8.4"
 
 [libraries]
     androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -67,12 +68,13 @@
     jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "test-junit-jupiter" }
     coroutines-test={module="org.jetbrains.kotlinx:kotlinx-coroutines-test",version.ref="coroutine-test-version"}
     kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization"}
-
+    apollo-sqlite-cache={module="com.apollographql.apollo3:apollo-normalized-cache-sqlite",version.ref="apollo-version"}
 [bundles]
     compose=["androidx-ui","androidx-material3","androidx-ui-graphics","androidx-ui-tooling-preview","compose-navigation"]
     androidx=["androidx-core-ktx","compose-lifecycle","androidx-lifecycle-runtime-ktx","androidx-activity-compose"]
     hilt=["dagger-hilt","compose-hilt-navigation"]
     kotlinx=["kotlin-datetime","kotlinx-play-services","kotlinx-serialization-json"]
+    apollo=["apollo","apollo-sqlite-cache"]
     paging=["paging-lib","paging-compose"]
     datastore=["datastore","protobuf"]
     test=["junit","truth","jupiter-params","jupiter","coroutines-test"]

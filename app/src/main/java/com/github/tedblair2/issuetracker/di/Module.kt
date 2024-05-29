@@ -2,6 +2,8 @@ package com.github.tedblair2.issuetracker.di
 
 import android.content.Context
 import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.cache.normalized.normalizedCache
+import com.apollographql.apollo3.cache.normalized.sql.SqlNormalizedCacheFactory
 import com.apollographql.apollo3.network.http.HttpInterceptor
 import com.github.tedblair2.issuetracker.helpers.AuthenticationInterceptor
 import com.github.tedblair2.issuetracker.repository.CommentsRepository
@@ -47,10 +49,12 @@ object Module {
 
     @Provides
     @Singleton
-    fun provideApolloClient(httpInterceptor: HttpInterceptor):ApolloClient{
+    fun provideApolloClient(httpInterceptor: HttpInterceptor,@ApplicationContext context: Context):ApolloClient{
+        val cacheFactory=SqlNormalizedCacheFactory(context,"apollo.db")
         return ApolloClient.Builder()
             .serverUrl("https://api.github.com/graphql")
             .addHttpInterceptor(httpInterceptor)
+            .normalizedCache(cacheFactory)
             .build()
     }
 

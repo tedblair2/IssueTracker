@@ -77,7 +77,7 @@ dependencies {
     implementation(libs.bundles.compose)
     implementation(libs.bundles.hilt)
     ksp(libs.dagger.hilt.ksp)
-    implementation(libs.apollo)
+    implementation(libs.bundles.apollo)
     implementation(libs.bundles.kotlinx)
     //firebase
     implementation(platform(libs.firebase.bom))
